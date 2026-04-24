@@ -1,18 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../contexts/ThemeContext'; // Importando o contexto do tema
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function HomeScreen({ navigation }) {
-  // Puxando o estado do Modo Escuro e a função de alternar
   const { isDarkMode, toggleTheme } = useTheme();
 
-  // Definindo as cores dinâmicas
+  // Cores dinâmicas para o tema
   const bgColor = isDarkMode ? '#121212' : '#f5f5f5';
   const textColor = isDarkMode ? '#ffffff' : '#333333';
   const cardColor = isDarkMode ? '#1e1e1e' : '#ffffff';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const borderColor = isDarkMode ? '#333333' : '#ffcccc';
+
+  // Função para deslogar
+  const handleLogout = () => {
+    Alert.alert(
+      "Sair",
+      "Tem certeza que deseja encerrar a sessão?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "Sair", 
+          style: "destructive", 
+          onPress: () => navigation.replace('Login') // Volta para a tela de Login
+        }
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -26,10 +41,18 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
         
-        {/* AQUI ESTÁ A MÁGICA: TouchableOpacity envolvendo o ícone */}
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {/* Botão de Tema */}
+          <TouchableOpacity onPress={toggleTheme} style={styles.actionButton}>
+            <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
+          </TouchableOpacity>
+
+          {/* NOVO: Botão de Sair */}
+          <TouchableOpacity onPress={handleLogout} style={styles.actionButton}>
+            <Ionicons name="log-out-outline" size={24} color="#fff" />
+            <Text style={{ color: '#fff', }}>Sair</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -61,7 +84,6 @@ export default function HomeScreen({ navigation }) {
           <Text style={[styles.infoText, { color: subTextColor }]}>Vencimento: 20/03/2026</Text>
           <Text style={[styles.valueText, { color: textColor }]}>Valor: R$ 850,00</Text>
           
-          {/* Botão de navegação para a tela de Faturas */}
           <TouchableOpacity 
             style={styles.buttonRed}
             onPress={() => navigation.navigate('Faturas')}
@@ -88,6 +110,8 @@ const styles = StyleSheet.create({
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   headerGreeting: { color: '#fff', fontSize: 14 },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
+  actionButton: { marginLeft: 15 },
   content: { padding: 20 },
   dateText: { fontSize: 12 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, marginTop: 5 },
