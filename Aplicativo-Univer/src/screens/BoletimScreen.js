@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import * as Animatable from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BoletimScreen({ navigation }) {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -12,14 +14,12 @@ export default function BoletimScreen({ navigation }) {
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const borderColor = isDarkMode ? '#333333' : '#B90000';
 
-  // Lista de matérias com os dados que você pediu
   const materias = [
     { id: '1', nome: 'Computação Gráfica', cod: 'MCA304', nota: 7.8, freq: 85 },
     { id: '2', nome: 'Cálculo Numérico', cod: 'MAT201', nota: 8.5, freq: 73 },
     { id: '3', nome: 'Projeto Integrador', cod: 'BDC312', nota: 9.2, freq: 100 },
   ];
 
-  // Cálculos automáticos baseados na lista acima
   const mediaGeral = (materias.reduce((acc, curr) => acc + curr.nota, 0) / materias.length).toFixed(1);
   const freqMedia = Math.round(materias.reduce((acc, curr) => acc + curr.freq, 0) / materias.length);
 
@@ -48,63 +48,77 @@ export default function BoletimScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: textColor }]}>Boletim de Notas</Text>
-        <Text style={[styles.subtitle, { color: subTextColor }]}>Semestre 2026.1</Text>
 
-        <View style={styles.row}>
-          <View style={[styles.summaryCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
-            <Text style={[styles.summaryLabel, { color: subTextColor }]}>Média Geral</Text>
-            <Text style={styles.summaryValue}>{mediaGeral}</Text>
-          </View>
-          <View style={[styles.summaryCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
-            <Text style={[styles.summaryLabel, { color: subTextColor }]}>Frequência Média</Text>
-            <Text style={styles.summaryValue}>{freqMedia}%</Text>
-          </View>
-        </View>
+        {/* Título */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <Text style={[styles.title, { color: textColor }]}>Boletim de Notas</Text>
+          <Text style={[styles.subtitle, { color: subTextColor }]}>Semestre 2026.1</Text>
+        </Animatable.View>
 
-        <View style={[styles.chartCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
-          <Text style={[styles.cardTitle, { color: subTextColor }]}>Distribuição de Notas</Text>
-          <View style={styles.chartPlaceholder}>
-             <View style={styles.circle}>
+        {/* Cards de resumo */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={150}>
+          <View style={styles.row}>
+            <View style={[styles.summaryCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
+              <Text style={[styles.summaryLabel, { color: subTextColor }]}>Média Geral</Text>
+              <Text style={styles.summaryValue}>{mediaGeral}</Text>
+            </View>
+            <View style={[styles.summaryCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
+              <Text style={[styles.summaryLabel, { color: subTextColor }]}>Frequência Média</Text>
+              <Text style={styles.summaryValue}>{freqMedia}%</Text>
+            </View>
+          </View>
+        </Animatable.View>
+
+        {/* Gráfico */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={250}>
+          <View style={[styles.chartCard, { backgroundColor: cardColor, borderColor: borderColor }]}>
+            <Text style={[styles.cardTitle, { color: subTextColor }]}>Distribuição de Notas</Text>
+            <View style={styles.chartPlaceholder}>
+              <View style={styles.circle}>
                 {materias.map(m => (
                   <Text key={m.id} style={styles.chartText}>{m.cod}: {m.nota}</Text>
                 ))}
-             </View>
-          </View>
-        </View>
-
-        <Text style={[styles.sectionTitle, { color: textColor }]}>Detalhamento por Disciplina</Text>
-        
-        {materias.map((materia) => (
-          <View key={materia.id} style={[styles.cardDetail, { backgroundColor: cardColor, borderColor: borderColor, marginBottom: 15 }]}>
-            <View style={styles.detailRow}>
-              <View>
-                <Text style={[styles.subjectTitle, { color: textColor }]}>{materia.nome}</Text>
-                <Text style={[styles.subjectSub, { color: subTextColor }]}>{materia.cod}</Text>
               </View>
-              <Text style={[styles.gradeBig, { color: materia.nota >= 7 ? '#4CAF50' : '#FF3B30' }]}>{materia.nota}</Text>
             </View>
-            
-            <Text style={[styles.freqLabel, { color: subTextColor }]}>Frequência: {materia.freq}%</Text>
-            
-            {/* Barra de Progresso com Marcador de 75% */}
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: `${materia.freq}%` }]} />
-                {/* Marcador visual de 75% */}
-                <View style={styles.marker75} />
-              </View>
-              <Text style={styles.markerText}>75%</Text>
-            </View>
-
-            {/* Mensagem de alerta se a frequência for abaixo de 75% */}
-            {materia.freq < 75 && (
-              <Text style={styles.warningText}>
-                ⚠️ Presença abaixo do aceitável. O aluno deve comparecer mais nas aulas.
-              </Text>
-            )}
           </View>
+        </Animatable.View>
+
+        {/* Título seção */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={350}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Detalhamento por Disciplina</Text>
+        </Animatable.View>
+
+        {/* Cards por disciplina */}
+        {materias.map((materia, index) => (
+          <Animatable.View key={materia.id} animation="fadeInUp" duration={400} delay={450 + index * 100}>
+            <View style={[styles.cardDetail, { backgroundColor: cardColor, borderColor: borderColor, marginBottom: 15 }]}>
+              <View style={styles.detailRow}>
+                <View>
+                  <Text style={[styles.subjectTitle, { color: textColor }]}>{materia.nome}</Text>
+                  <Text style={[styles.subjectSub, { color: subTextColor }]}>{materia.cod}</Text>
+                </View>
+                <Text style={[styles.gradeBig, { color: materia.nota >= 7 ? '#4CAF50' : '#FF3B30' }]}>{materia.nota}</Text>
+              </View>
+
+              <Text style={[styles.freqLabel, { color: subTextColor }]}>Frequência: {materia.freq}%</Text>
+
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBarBg}>
+                  <View style={[styles.progressBarFill, { width: `${materia.freq}%` }]} />
+                  <View style={styles.marker75} />
+                </View>
+                <Text style={styles.markerText}>75%</Text>
+              </View>
+
+              {materia.freq < 75 && (
+                <Text style={styles.warningText}>
+                  ⚠️ Presença abaixo do aceitável. O aluno deve comparecer mais nas aulas.
+                </Text>
+              )}
+            </View>
+          </Animatable.View>
         ))}
+
       </ScrollView>
     </SafeAreaView>
   );

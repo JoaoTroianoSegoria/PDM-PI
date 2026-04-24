@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, 
-  SafeAreaView, KeyboardAvoidingView, Platform, Alert, Image // Importado o Image
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert, Image } from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen({ navigation }) {
   const [usuario, setUsuario] = useState('');
@@ -37,6 +36,7 @@ export default function LoginScreen({ navigation }) {
     if (usuario.length !== 10 || isNaN(usuario)) {
       Alert.alert("Erro no Usuário", "O usuário deve conter exatamente 10 números.");
       return;
+      navigation.replace('Main');
     }
 
     // 2. Valida Senha (apenas números, total de 11 e lógica de CPF)
@@ -57,22 +57,24 @@ export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.inner}>
-        <View style={styles.logoContainer}>
-          {/* AQUI ESTÁ A MUDANÇA: Substituído XX Mark pela sua Image */}
+        
+        {/* 2. LOGO DESCENDO DE CIMA (fadeInDown) */}
+        <Animatable.View animation="fadeInDown" duration={900} style={styles.logoContainer}>
           <Image 
-            source={require('../../assets/logo.png')} // AJUSTE O NOME DO ARQUIVO AQUI SE PRECISAR
-            style={styles.logoImage} // Estilo da imagem definido abaixo
-            resizeMode="contain" // Mantém a proporção sem cortar
+            source={require('../../assets/logo.png')} 
+            style={styles.logoImage} 
+            resizeMode="contain" 
           />
           <Text style={styles.title}>UniPortal</Text>
           <Text style={styles.subtitle}>Login</Text>
-        </View>
+        </Animatable.View>
 
-        <View style={styles.formContainer}>
+        {/* 3. FORMULÁRIO SUBINDO DE BAIXO (fadeInUp) com um pequeno atraso */}
+        <Animatable.View animation="fadeInUp" duration={600} delay={100} style={styles.formContainer}>
           <Text style={styles.label}>Usuário (10 dígitos)</Text>
           <TextInput 
             style={styles.input} 
-            placeholder="0000000000" 
+            placeholder="Matrícula - 10 dígitos" 
             value={usuario}
             onChangeText={setUsuario}
             keyboardType="numeric" 
@@ -83,7 +85,7 @@ export default function LoginScreen({ navigation }) {
           <TextInput 
             style={styles.input} 
             secureTextEntry 
-            placeholder="000.000.000-00" 
+            placeholder="CPF - 11 dígitos" 
             value={senha}
             onChangeText={setSenha}
             keyboardType="numeric" 
@@ -96,10 +98,11 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.buttonLoginText}>ENTRAR</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => Alert.alert("Suporte", "Procure a secretaria da faculdade.")}>
+          <TouchableOpacity onPress={() => Alert.alert("Suporte", "Procure a secretaria.")}>
             <Text style={styles.forgotPassword}>Esqueci a senha</Text>
           </TouchableOpacity>
-        </View>
+        </Animatable.View>
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -109,7 +112,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#A60000' },
   inner: { flex: 1, justifyContent: 'center', padding: 20 },
   logoContainer: { alignItems: 'center', marginBottom: 40 },
-  // NOVO: Estilo para o Logo na tela de Login (Maior)
   logoImage: { width: 150, height: 150, marginBottom: 10 }, 
   title: { fontSize: 40, color: '#fff', fontWeight: 'bold' },
   subtitle: { fontSize: 22, color: '#fff', fontWeight: '600', marginTop: 5 },
