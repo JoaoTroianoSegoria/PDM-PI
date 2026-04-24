@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -15,6 +15,13 @@ export default function DisciplinasScreen() {
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
   const activeTabBg = isDarkMode ? '#1e1e1e' : '#fff';
 
+  const handleLogout = () => {
+    Alert.alert("Sair", "Deseja encerrar a sessão?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Sair", onPress: () => navigation.replace('Login'), style: "destructive" }
+    ]);
+  };
+  
   const disciplinasAtuais = [
     { id: '1', nome: 'Cálculo Numérico', cod: 'MAT201', turma: 'Turma A', prof: 'Prof. Valnei Alves Fernandes', horario: 'Segunda-Feira 8:15 - 11:00', sala: 'Sala PCA2' },
     { id: '2', nome: 'Computação Gráfica', cod: 'MCA304', turma: 'Turma B', prof: 'Prof. Sofia Mitsuyo Taguchi da Cunha', horario: 'Segunda-Feira 11:00 - 12:15', sala: 'Sala PCB1' },
@@ -31,7 +38,10 @@ export default function DisciplinasScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          {/* Foto de perfil clicável para sair */}
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          </TouchableOpacity>
           <View style={styles.userTextContainer}>
             <Text style={styles.headerTitle}>UniPortal</Text>
             <Text style={styles.headerGreeting}>Olá, João</Text>

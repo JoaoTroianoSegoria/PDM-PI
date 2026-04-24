@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -7,6 +7,12 @@ export default function CarteirinhaScreen() {
   // Puxando o tema para a tela de Carteirinha
   const { isDarkMode, toggleTheme } = useTheme();
 
+  const handleLogout = () => {
+    Alert.alert("Sair", "Deseja encerrar a sessão?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Sair", onPress: () => navigation.replace('Login'), style: "destructive" }
+    ]);
+  };
   // Cores dinâmicas
   const bgColor = isDarkMode ? '#121212' : '#f5f5f5';
   const textColor = isDarkMode ? '#ffffff' : '#333333';
@@ -15,17 +21,17 @@ export default function CarteirinhaScreen() {
   const borderColor = isDarkMode ? '#333333' : '#B90000';
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
+<SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          </TouchableOpacity>
           <View style={styles.userTextContainer}>
             <Text style={styles.headerTitle}>UniPortal</Text>
             <Text style={styles.headerGreeting}>Olá, João</Text>
           </View>
         </View>
-        
-        {/* Botão para alternar o tema */}
         <TouchableOpacity onPress={toggleTheme}>
           <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
         </TouchableOpacity>

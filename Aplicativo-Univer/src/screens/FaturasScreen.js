@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -15,6 +15,13 @@ export default function FaturasScreen() {
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
   const activeTabBg = isDarkMode ? '#1e1e1e' : '#fff';
 
+  const handleLogout = () => {
+    Alert.alert("Sair", "Deseja encerrar a sessão?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Sair", onPress: () => navigation.replace('Login'), style: "destructive" }
+    ]);
+  };
+
   const faturasPendentes = [
     { id: '1', mes: 'Março/2026', vencimento: '20/03/2026', valor: 'R$ 850,00', status: 'Pendente' }
   ];
@@ -28,7 +35,10 @@ export default function FaturasScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          {/* Foto de perfil clicável para sair */}
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          </TouchableOpacity>
           <View style={styles.userTextContainer}>
             <Text style={styles.headerTitle}>UniPortal</Text>
             <Text style={styles.headerGreeting}>Olá, João</Text>
