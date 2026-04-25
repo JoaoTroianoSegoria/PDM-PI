@@ -2,8 +2,13 @@
 
 O **UniPortal** é um protótipo de aplicativo móvel desenvolvido para facilitar a vida acadêmica dos estudantes. O projeto foca em uma interface intuitiva, interativa e funcional, permitindo que o aluno gerencie suas notas, frequências, horários e faturas em um único lugar.
 
-Este projeto faz parte do **Projeto Integrador (PI)** da faculdade.
+Este projeto faz parte do **Projeto Integrador (PI)** da faculdade IESB. 
 
+## Esse trabalho foi desenvolvido por:
+João Otavio Troiano Segoria.<br>
+João Pedro Gonçalves Campos.<br>
+Gabriel Castagnaro Macêdo.<br>
+ 
 ## 🚀 Funcionalidades:
 
 O aplicativo conta com um fluxo completo de navegação e as seguintes telas interativas:
