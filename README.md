@@ -6,7 +6,7 @@ Este projeto faz parte do **Projeto Integrador (PI)** da faculdade IESB.
 
 ## Esse trabalho foi desenvolvido por:
 João Otavio Troiano Segoria.<br>
-João Pedro Gonçalves Campos.<br>
+João Pedro Gonçalves Campos Silva.<br>
 Gabriel Castagnaro Macêdo.<br>
  
 ## 🚀 Funcionalidades:
