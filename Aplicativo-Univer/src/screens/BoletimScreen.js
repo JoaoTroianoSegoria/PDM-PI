@@ -126,7 +126,7 @@ export default function BoletimScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },

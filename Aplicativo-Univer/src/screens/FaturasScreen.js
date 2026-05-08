@@ -14,7 +14,8 @@ export default function FaturasScreen({ navigation }) {
   const cardColor = isDarkMode ? '#1e1e1e' : '#D9D9D9';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
-  const activeTabBg = isDarkMode ? '#1e1e1e' : '#fff';
+  const activeTabBg = isDarkMode ? '#7e1717' : '#fff';
+  const activeTabText = isDarkMode ? '#ffffff' : '#B90000';
 
   const handleLogout = () => {
     Alert.alert("Sair", "Deseja encerrar a sessão?", [
@@ -58,13 +59,17 @@ export default function FaturasScreen({ navigation }) {
               style={[styles.tab, abaAtual === 'pendentes' && { backgroundColor: activeTabBg }]}
               onPress={() => setAbaAtual('pendentes')}
             >
-              <Text style={[styles.tabText, abaAtual === 'pendentes' && styles.activeTabText]}>Pendentes</Text>
+              <Text style={[
+                styles.activeTabText, abaAtual === 'pendentes' && styles.activeTabText,
+                       abaAtual === 'pendentes' && { color: activeTabText, fontWeight: 'bold' },
+              ]}>Pendentes</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tab, abaAtual === 'historico' && { backgroundColor: activeTabBg }]}
               onPress={() => setAbaAtual('historico')}
             >
-              <Text style={[styles.tabText, abaAtual === 'historico' && styles.activeTabText]}>Histórico</Text>
+              <Text style={[ styles.activeTabText, abaAtual === 'historico' && styles.activeTabText,
+                       abaAtual === 'historico' && { color: activeTabText, fontWeight: 'bold' },]}>Histórico</Text>
             </TouchableOpacity>
           </View>
         </Animatable.View>
@@ -143,7 +148,7 @@ export default function FaturasScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
   tabContainer: { flexDirection: 'row', borderRadius: 8, padding: 4, marginBottom: 20 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
   tabText: { color: '#666', fontWeight: '500' },
-  activeTabText: { color: '#B90000', fontWeight: 'bold' },
+  activeTabText: { fontWeight: 'bold' },
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 12, marginBottom: 20 },
   invoiceCard: { padding: 20, borderRadius: 15, marginBottom: 15 },
