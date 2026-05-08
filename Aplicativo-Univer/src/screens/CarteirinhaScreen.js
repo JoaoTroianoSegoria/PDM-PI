@@ -1,13 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import * as Animatable from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CarteirinhaScreen() {
-  // Puxando o tema para a tela de Carteirinha
+export default function CarteirinhaScreen({ navigation }) {
   const { isDarkMode, toggleTheme } = useTheme();
 
-  // Cores dinâmicas
+  const handleLogout = () => {
+    Alert.alert("Sair", "Deseja encerrar a sessão?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Sair", onPress: () => navigation.replace('Login'), style: "destructive" }
+    ]);
+  };
+
   const bgColor = isDarkMode ? '#121212' : '#f5f5f5';
   const textColor = isDarkMode ? '#ffffff' : '#333333';
   const cardColor = isDarkMode ? '#1e1e1e' : '#ffffff';
@@ -18,60 +25,74 @@ export default function CarteirinhaScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="person-circle-outline" size={40} color="#fff" />
+          </TouchableOpacity>
           <View style={styles.userTextContainer}>
             <Text style={styles.headerTitle}>UniPortal</Text>
             <Text style={styles.headerGreeting}>Olá, João</Text>
           </View>
         </View>
-        
-        {/* Botão para alternar o tema */}
         <TouchableOpacity onPress={toggleTheme}>
           <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.title, { color: textColor }]}>Carteirinha Estudantil</Text>
-        <Text style={[styles.subtitle, { color: subTextColor }]}>Documento de Identificação</Text>
 
-        <View style={styles.idCard}>
-          <View style={styles.photoContainer}>
-            <View style={styles.photoPlaceholder}>
-              <Ionicons name="person" size={50} color="#fff" />
+        {/* Título */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <Text style={[styles.title, { color: textColor }]}>Carteirinha Estudantil</Text>
+          <Text style={[styles.subtitle, { color: subTextColor }]}>Documento de Identificação</Text>
+        </Animatable.View>
+
+        {/* Cartão de ID */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={150}>
+          <View style={styles.idCard}>
+            <View style={styles.photoContainer}>
+              <View style={styles.photoPlaceholder}>
+                <Ionicons name="person" size={50} color="#fff" />
+              </View>
+            </View>
+            <View style={styles.idInfo}>
+              <Text style={styles.userName}>João</Text>
+              <Text style={styles.userRA}>RA: 2512130067</Text>
+              <Text style={styles.userCourse}>Ciência da Computação</Text>
+              <View style={styles.idFooter}>
+                <View>
+                  <Text style={styles.label}>Semestre Atual</Text>
+                  <Text style={styles.value}>5º Semestre</Text>
+                </View>
+                <View>
+                  <Text style={styles.label}>Válido até:</Text>
+                  <Text style={styles.value}>12/2027</Text>
+                </View>
+              </View>
             </View>
           </View>
-          <View style={styles.idInfo}>
-            <Text style={styles.userName}>João</Text>
-            <Text style={styles.userRA}>RA: 2512130067</Text>
-            <Text style={styles.userCourse}>Ciência da Computação</Text>
-            <View style={styles.idFooter}>
-               <View>
-                 <Text style={styles.label}>Semestre Atual</Text>
-                 <Text style={styles.value}>5º Semestre</Text>
-               </View>
-               <View>
-                 <Text style={styles.label}>Válido até:</Text>
-                 <Text style={styles.value}>12/2027</Text>
-               </View>
+        </Animatable.View>
+
+        {/* Campo matrícula */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={250}>
+          <View style={[styles.field, { backgroundColor: cardColor, borderColor: borderColor }]}>
+            <Ionicons name="finger-print-outline" size={20} color="#B90000" />
+            <View style={styles.fieldTexts}>
+              <Text style={[styles.fieldLabel, { color: subTextColor }]}>Matrícula</Text>
+              <Text style={[styles.fieldValue, { color: textColor }]}>2512130067</Text>
             </View>
           </View>
-        </View>
+        </Animatable.View>
 
-        <View style={[styles.field, { backgroundColor: cardColor, borderColor: borderColor }]}>
-          <Ionicons name="finger-print-outline" size={20} color="#B90000" />
-          <View style={styles.fieldTexts}>
-            <Text style={[styles.fieldLabel, { color: subTextColor }]}>Matrícula</Text>
-            <Text style={[styles.fieldValue, { color: textColor }]}>2512130067</Text>
+        {/* QR Code */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={350}>
+          <View style={styles.qrContainer}>
+            <Text style={[styles.qrLabel, { color: subTextColor }]}>QR Code de Validação</Text>
+            <View style={[styles.qrBox, { backgroundColor: cardColor, borderColor: borderColor }]}>
+              <Ionicons name="qr-code-outline" size={100} color={textColor} />
+            </View>
           </View>
-        </View>
+        </Animatable.View>
 
-        <View style={styles.qrContainer}>
-          <Text style={[styles.qrLabel, { color: subTextColor }]}>QR Code de Validação</Text>
-          <View style={[styles.qrBox, { backgroundColor: cardColor, borderColor: borderColor }]}>
-            <Ionicons name="qr-code-outline" size={100} color={textColor} />
-          </View>
-        </View>
       </View>
     </SafeAreaView>
   );
