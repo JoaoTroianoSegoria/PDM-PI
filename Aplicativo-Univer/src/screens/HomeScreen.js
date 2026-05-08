@@ -79,7 +79,9 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.subjectText, { color: textColor }]}>Mensalidade Março/2026</Text>
             <Text style={[styles.infoText, { color: subTextColor }]}>Vencimento: 20/03/2026</Text>
             <Text style={[styles.valueText, { color: textColor }]}>Valor: R$ 850,00</Text>
-            <TouchableOpacity style={styles.buttonRed} onPress={() => navigation.navigate('Faturas')}>
+            <TouchableOpacity 
+              style={styles.buttonRed} 
+              onPress={() => navigation.navigate('Faturas')}>
               <Text style={styles.buttonRedText}>Ir para faturas</Text>
             </TouchableOpacity>
           </View>
@@ -100,9 +102,8 @@ export default function HomeScreen({ navigation }) {
               <Ionicons name="alert-circle-outline" /> Prazo: 19/03/2026
             </Text>
             <TouchableOpacity 
-              style={[styles.buttonRed, { backgroundColor: '#8B0000' }]} 
-              onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}
-            >
+              style={[styles.buttonRed]}   
+              onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}>
               <Text style={styles.buttonRedText}>Realizar devolução</Text>
             </TouchableOpacity>
           </View>
