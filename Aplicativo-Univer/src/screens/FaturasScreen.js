@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import * as Animatable from 'react-native-animatable';
@@ -14,8 +14,8 @@ export default function FaturasScreen({ navigation }) {
   const cardColor = isDarkMode ? '#1e1e1e' : '#D9D9D9';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
-  const activeTabBg = isDarkMode ? '#7e1717' : '#fff';
-  const activeTabText = isDarkMode ? '#ffffff' : '#B90000';
+  const activeTabBg = isDarkMode ? '#B90000' : '#b90000';
+ 
 
   const handleLogout = () => {
     Alert.alert("Sair", "Deseja encerrar a sessão?", [
@@ -35,20 +35,23 @@ export default function FaturasScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
-        <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handleLogout}>
-            <Ionicons name="person-circle-outline" size={40} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.userTextContainer}>
-            <Text style={styles.headerTitle}>UniPortal</Text>
-            <Text style={styles.headerGreeting}>Olá, João</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={toggleTheme}>
+      <View style={styles.header} >
+              <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
+              <View style={styles.userInfo}>
+                <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
+                  <Ionicons name="person-circle-outline" size={40} color="#fff" />
+                </TouchableOpacity>
+                <View style={styles.userTextContainer}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.headerTitle}>UniPortal</Text>
+                  </View>
+                  <Text style={styles.headerGreeting}>Olá, João</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
           <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
         </TouchableOpacity>
-      </View>
+            </View>
 
       <ScrollView style={styles.content}>
 
@@ -60,16 +63,17 @@ export default function FaturasScreen({ navigation }) {
               onPress={() => setAbaAtual('pendentes')}
             >
               <Text style={[
-                styles.activeTabText, abaAtual === 'pendentes' && styles.activeTabText,
-                       abaAtual === 'pendentes' && { color: activeTabText, fontWeight: 'bold' },
+                                      abaAtual === 'pendentes' && { color: styles.activeTabText.color, fontWeight: 'bold' },
+                                      abaAtual !== 'pendentes' && { color: styles.tabText.color, fontWeight: 'bold' },
               ]}>Pendentes</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tab, abaAtual === 'historico' && { backgroundColor: activeTabBg }]}
               onPress={() => setAbaAtual('historico')}
             >
-              <Text style={[ styles.activeTabText, abaAtual === 'historico' && styles.activeTabText,
-                       abaAtual === 'historico' && { color: activeTabText, fontWeight: 'bold' },]}>Histórico</Text>
+              <Text style={[     abaAtual === 'historico' && { color: styles.activeTabText.color, fontWeight: 'bold' },
+                                 abaAtual !== 'historico' && { color: styles.tabText.color, fontWeight: 'bold' },
+                           ]}>Histórico</Text>
             </TouchableOpacity>
           </View>
         </Animatable.View>
@@ -147,6 +151,7 @@ export default function FaturasScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  logoContainer: { marginRight: 10, width: 25, height: 25 },  
   container: { flex: 1 },
   header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
@@ -156,8 +161,8 @@ const styles = StyleSheet.create({
   content: { padding: 20 },
   tabContainer: { flexDirection: 'row', borderRadius: 8, padding: 4, marginBottom: 20 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
-  tabText: { color: '#666', fontWeight: '500' },
-  activeTabText: { fontWeight: 'bold' },
+  tabText: { color:'#666', fontWeight: '500' },
+  activeTabText: {color: '#ffffff', fontWeight: 'bold' },
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 12, marginBottom: 20 },
   invoiceCard: { padding: 20, borderRadius: 15, marginBottom: 15 },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert , Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import * as Animatable from 'react-native-animatable';
@@ -14,8 +14,6 @@ export default function DisciplinasScreen({ navigation }) {
   const cardColor = isDarkMode ? '#1e1e1e' : '#ffffff';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
-  const activeTabBg = isDarkMode ? '#7e1717' : '#fff';
-  const activeTabText = isDarkMode ? '#ffffff' : '#000000';
 
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja encerrar a sessao?', [
@@ -38,47 +36,46 @@ export default function DisciplinasScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
-        <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handleLogout}>
-            <Ionicons name="person-circle-outline" size={40} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.userTextContainer}>
-            <Text style={styles.headerTitle}>UniPortal</Text>
-            <Text style={styles.headerGreeting}>Ola, Joao</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons name={isDarkMode ? 'sunny' : 'moon'} size={24} color="#fff" />
+      <View style={styles.header} >
+              <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
+              <View style={styles.userInfo}>
+                <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
+                  <Ionicons name="person-circle-outline" size={40} color="#fff" />
+                </TouchableOpacity>
+                <View style={styles.userTextContainer}>
+                    <Text style={styles.headerTitle}>UniPortal</Text>
+                  <Text style={styles.headerGreeting}>Olá, João</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
+          <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
         </TouchableOpacity>
-      </View>
+            </View>
 
       <ScrollView style={styles.content}>
         <Animatable.View animation="fadeInUp" duration={400} delay={50}>
           <View style={[styles.tabContainer, { backgroundColor: tabContainerBg }]}>
             <TouchableOpacity
-              style={[styles.tab, abaAtual === 'atuais' && { backgroundColor: activeTabBg }]}
+              style={[styles.tab, abaAtual === 'atuais' && { backgroundColor: styles.activeTabBg.color }]}
               onPress={() => setAbaAtual('atuais')}
             >
               <Text
                 style={[
-                  styles.tabText,
-                  abaAtual === 'atuais' && styles.activeTabText,
-                  abaAtual === 'atuais' && { color: activeTabText },
+                  abaAtual == 'atuais' && { color: styles.activeTabText.color, fontWeight:'bold' },
+                  abaAtual != 'atuais' && { color: styles.tabText.color ,fontWeight:'bold'},
                 ]}
               >
                 Disciplinas Atuais
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.tab, abaAtual === 'historico' && { backgroundColor: activeTabBg }]}
+              style={[styles.tab, abaAtual === 'historico' && { backgroundColor: styles.activeTabBg.color }]}
               onPress={() => setAbaAtual('historico')}
             >
               <Text
                 style={[
-                  styles.tabText,
-                  abaAtual === 'historico' && styles.activeTabText,
-                  abaAtual === 'historico' && { color: activeTabText },
+                  abaAtual  == 'historico' && { color: styles.activeTabText.color, fontWeight:'bold' },
+                  abaAtual != 'historico' && { color: styles.tabText.color, fontWeight:'bold' },
                 ]}
               >
                 Historico
@@ -153,8 +150,10 @@ export default function DisciplinasScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  activeTabBg: { color: '#B90000' },
+  logoContainer: { marginRight: 10, width: 25, height: 25 },
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
@@ -163,7 +162,7 @@ const styles = StyleSheet.create({
   tabContainer: { flexDirection: 'row', borderRadius: 8, padding: 4, marginBottom: 20 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
   tabText: { color: '#666', fontWeight: '500' },
-  activeTabText: { fontWeight: 'bold' },
+  activeTabText: { color: '#ffffff', fontWeight: 'bold' },
   semesterTitle: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 12, marginBottom: 20 },
   card: { borderWidth: 1, borderColor: '#B90000', borderRadius: 12, padding: 15, marginBottom: 15 },
