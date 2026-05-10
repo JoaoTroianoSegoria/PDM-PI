@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert,Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import * as Animatable from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function FaturasScreen() {
+export default function FaturasScreen({ navigation }) {
   const { isDarkMode, toggleTheme } = useTheme();
   const [abaAtual, setAbaAtual] = useState('pendentes');
 
-  // Cores dinâmicas
   const bgColor = isDarkMode ? '#121212' : '#f5f5f5';
   const textColor = isDarkMode ? '#ffffff' : '#333333';
   const cardColor = isDarkMode ? '#1e1e1e' : '#D9D9D9';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const tabContainerBg = isDarkMode ? '#333333' : '#e0e0e0';
-  const activeTabBg = isDarkMode ? '#1e1e1e' : '#fff';
+  const activeTabBg = isDarkMode ? '#B90000' : '#b90000';
+ 
 
   const handleLogout = () => {
     Alert.alert("Sair", "Deseja encerrar a sessão?", [
@@ -33,102 +35,113 @@ export default function FaturasScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
-        <View style={styles.userInfo}>
-          {/* Foto de perfil clicável para sair */}
-          <TouchableOpacity onPress={handleLogout}>
-            <Ionicons name="person-circle-outline" size={40} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.userTextContainer}>
-            <Text style={styles.headerTitle}>UniPortal</Text>
-            <Text style={styles.headerGreeting}>Olá, João</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={toggleTheme}>
+      <View style={styles.header} >
+              <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
+              <View style={styles.userInfo}>
+                <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
+                  <Ionicons name="person-circle-outline" size={40} color="#fff" />
+                </TouchableOpacity>
+                <View style={styles.userTextContainer}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.headerTitle}>UniPortal</Text>
+                  </View>
+                  <Text style={styles.headerGreeting}>Olá, João</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
           <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
         </TouchableOpacity>
-      </View>
+            </View>
 
       <ScrollView style={styles.content}>
-        {/* Controle das Abas com cores dinâmicas */}
-        <View style={[styles.tabContainer, { backgroundColor: tabContainerBg }]}>
-          <TouchableOpacity 
-            style={[styles.tab, abaAtual === 'pendentes' && { backgroundColor: activeTabBg }]} 
-            onPress={() => setAbaAtual('pendentes')}
-          >
-            <Text style={[styles.tabText, abaAtual === 'pendentes' && styles.activeTabText]}>
-              Pendentes
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.tab, abaAtual === 'historico' && { backgroundColor: activeTabBg }]} 
-            onPress={() => setAbaAtual('historico')}
-          >
-            <Text style={[styles.tabText, abaAtual === 'historico' && styles.activeTabText]}>
-              Histórico
-            </Text>
-          </TouchableOpacity>
-        </View>
+
+        {/* Abas */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <View style={[styles.tabContainer, { backgroundColor: tabContainerBg }]}>
+            <TouchableOpacity
+              style={[styles.tab, abaAtual === 'pendentes' && { backgroundColor: activeTabBg }]}
+              onPress={() => setAbaAtual('pendentes')}
+            >
+              <Text style={[
+                                      abaAtual === 'pendentes' && { color: styles.activeTabText.color, fontWeight: 'bold' },
+                                      abaAtual !== 'pendentes' && { color: styles.tabText.color, fontWeight: 'bold' },
+              ]}>Pendentes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, abaAtual === 'historico' && { backgroundColor: activeTabBg }]}
+              onPress={() => setAbaAtual('historico')}
+            >
+              <Text style={[     abaAtual === 'historico' && { color: styles.activeTabText.color, fontWeight: 'bold' },
+                                 abaAtual !== 'historico' && { color: styles.tabText.color, fontWeight: 'bold' },
+                           ]}>Histórico</Text>
+            </TouchableOpacity>
+          </View>
+        </Animatable.View>
 
         {abaAtual === 'pendentes' ? (
           <View>
-            <Text style={[styles.sectionTitle, { color: textColor }]}>Faturas Pendentes</Text>
-            <Text style={[styles.subtitle, { color: subTextColor }]}>{faturasPendentes.length} fatura pendente</Text>
+            {/* Título */}
+            <Animatable.View animation="fadeInUp" duration={400} delay={150}>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Faturas Pendentes</Text>
+              <Text style={[styles.subtitle, { color: subTextColor }]}>{faturasPendentes.length} fatura pendente</Text>
+            </Animatable.View>
 
-            {faturasPendentes.map((item) => (
-              <View key={item.id} style={[styles.invoiceCard, { backgroundColor: cardColor }]}>
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.month, { color: textColor }]}>{item.mes}</Text>
-                  <View style={styles.badgePendente}><Text style={styles.badgeText}>{item.status}</Text></View>
+            {/* Cards pendentes */}
+            {faturasPendentes.map((item, index) => (
+              <Animatable.View key={item.id} animation="fadeInUp" duration={400} delay={250 + index * 100}>
+                <View style={[styles.invoiceCard, { backgroundColor: cardColor }]}>
+                  <View style={styles.cardHeader}>
+                    <Text style={[styles.month, { color: textColor }]}>{item.mes}</Text>
+                    <View style={styles.badgePendente}><Text style={styles.badgeText}>{item.status}</Text></View>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailLabel, { color: subTextColor }]}>Vencimento:</Text>
+                    <Text style={[styles.detailValue, { color: textColor }]}>{item.vencimento}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailLabel, { color: subTextColor }]}>Valor:</Text>
+                    <Text style={styles.valueLarge}>{item.valor}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.payButton}>
+                    <Ionicons name="card" size={20} color="#fff" />
+                    <Text style={styles.payButtonText}>Pagar agora</Text>
+                  </TouchableOpacity>
                 </View>
-                
-                <View style={styles.detailRow}>
-                  <Text style={[styles.detailLabel, { color: subTextColor }]}>Vencimento:</Text>
-                  <Text style={[styles.detailValue, { color: textColor }]}>{item.vencimento}</Text>
-                </View>
-                
-                <View style={styles.detailRow}>
-                  <Text style={[styles.detailLabel, { color: subTextColor }]}>Valor:</Text>
-                  <Text style={styles.valueLarge}>{item.valor}</Text>
-                </View>
-
-                <TouchableOpacity style={styles.payButton}>
-                  <Ionicons name="card" size={20} color="#fff" />
-                  <Text style={styles.payButtonText}>Pagar agora</Text>
-                </TouchableOpacity>
-              </View>
+              </Animatable.View>
             ))}
           </View>
         ) : (
           <View>
-            <Text style={[styles.sectionTitle, { color: textColor }]}>Histórico de Pagamentos</Text>
-            <Text style={[styles.subtitle, { color: subTextColor }]}>Faturas já quitadas</Text>
+            {/* Título */}
+            <Animatable.View animation="fadeInUp" duration={400} delay={150}>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Histórico de Pagamentos</Text>
+              <Text style={[styles.subtitle, { color: subTextColor }]}>Faturas já quitadas</Text>
+            </Animatable.View>
 
-            {historicoFaturas.map((item) => (
-              <View key={item.id} style={[styles.invoiceCard, { backgroundColor: cardColor, borderWidth: 1, borderColor: '#4CAF50' }]}>
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.month, { color: textColor }]}>{item.mes}</Text>
-                  <View style={[styles.badgePendente, { backgroundColor: '#4CAF50' }]}>
-                    <Text style={styles.badgeText}>{item.status}</Text>
+            {/* Cards histórico */}
+            {historicoFaturas.map((item, index) => (
+              <Animatable.View key={item.id} animation="fadeInUp" duration={400} delay={250 + index * 100}>
+                <View style={[styles.invoiceCard, { backgroundColor: cardColor, borderWidth: 1, borderColor: '#4CAF50' }]}>
+                  <View style={styles.cardHeader}>
+                    <Text style={[styles.month, { color: textColor }]}>{item.mes}</Text>
+                    <View style={[styles.badgePendente, { backgroundColor: '#4CAF50' }]}>
+                      <Text style={styles.badgeText}>{item.status}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailLabel, { color: subTextColor }]}>Vencimento original:</Text>
+                    <Text style={[styles.detailValue, { color: textColor }]}>{item.vencimento}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailLabel, { color: subTextColor }]}>Data de Pagamento:</Text>
+                    <Text style={[styles.detailValue, { color: '#4CAF50' }]}>{item.dataPagamento}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailLabel, { color: subTextColor }]}>Valor pago:</Text>
+                    <Text style={[styles.valueLarge, { color: '#4CAF50', fontSize: 16 }]}>{item.valor}</Text>
                   </View>
                 </View>
-                
-                <View style={styles.detailRow}>
-                  <Text style={[styles.detailLabel, { color: subTextColor }]}>Vencimento original:</Text>
-                  <Text style={[styles.detailValue, { color: textColor }]}>{item.vencimento}</Text>
-                </View>
-
-                <View style={styles.detailRow}>
-                  <Text style={[styles.detailLabel, { color: subTextColor }]}>Data de Pagamento:</Text>
-                  <Text style={[styles.detailValue, { color: '#4CAF50' }]}>{item.dataPagamento}</Text>
-                </View>
-                
-                <View style={styles.detailRow}>
-                  <Text style={[styles.detailLabel, { color: subTextColor }]}>Valor pago:</Text>
-                  <Text style={[styles.valueLarge, { color: '#4CAF50', fontSize: 16 }]}>{item.valor}</Text>
-                </View>
-              </View>
+              </Animatable.View>
             ))}
           </View>
         )}
@@ -138,8 +151,9 @@ export default function FaturasScreen() {
 }
 
 const styles = StyleSheet.create({
+  logoContainer: { marginRight: 10, width: 25, height: 25 },  
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
@@ -147,8 +161,8 @@ const styles = StyleSheet.create({
   content: { padding: 20 },
   tabContainer: { flexDirection: 'row', borderRadius: 8, padding: 4, marginBottom: 20 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
-  tabText: { color: '#666', fontWeight: '500' },
-  activeTabText: { color: '#B90000', fontWeight: 'bold' },
+  tabText: { color:'#666', fontWeight: '500' },
+  activeTabText: {color: '#ffffff', fontWeight: 'bold' },
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 12, marginBottom: 20 },
   invoiceCard: { padding: 20, borderRadius: 15, marginBottom: 15 },

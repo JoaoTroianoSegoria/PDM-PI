@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import * as Animatable from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen({ navigation }) {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -21,9 +23,11 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
+  
+      <View style={styles.header} >
+        <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
         <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handleLogout}>
+          <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
             <Ionicons name="person-circle-outline" size={40} color="#fff" />
           </TouchableOpacity>
           <View style={styles.userTextContainer}>
@@ -33,65 +37,79 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.headerGreeting}>Olá, João</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
+    <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
+  </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[styles.dateText, { color: subTextColor }]}>Sexta-Feira, 13 de março de 2026</Text>
         <Text style={[styles.sectionTitle, { color: textColor }]}>Sua grade de hoje</Text>
 
-        {/* Card: Aula de Hoje */}
-        <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor }]}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="calendar-outline" size={20} color="#B90000" />
-            <Text style={styles.cardTitle}>Aula de Hoje</Text>
-          </View>
-          <Text style={[styles.subjectText, { color: textColor }]}>Projeto integrador</Text>
-          <Text style={[styles.profText, { color: subTextColor }]}>Prof. Marcelo Alves Farias</Text>
-          <Text style={[styles.infoText, { color: subTextColor }]}><Ionicons name="time-outline" /> 11:00 - 12:15</Text>
-          <Text style={[styles.infoText, { color: subTextColor }]}><Ionicons name="location-outline" /> Sala B5 - Bloco J</Text>
-        </View>
-
-        {/* Card: Cobranças */}
-        <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor }]}>
-          <View style={[styles.cardHeader, { justifyContent: 'space-between' }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="card-outline" size={20} color="#B90000" />
-              <Text style={styles.cardTitle}>Cobranças</Text>
+        {/* Card 1: Aula de Hoje */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor }]}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="calendar-outline" size={20} color="#B90000" />
+              <Text style={styles.cardTitle}>Aula de Hoje</Text>
             </View>
-            <View style={styles.badgeRed}><Text style={styles.badgeText}>Pendente</Text></View>
+            <Text style={[styles.subjectText, { color: textColor }]}>Projeto integrador</Text>
+            <Text style={[styles.profText, { color: subTextColor }]}>Prof. Marcelo Alves Farias</Text>
+            <Text style={[styles.infoText, { color: subTextColor }]}><Ionicons name="time-outline" /> 11:00 - 12:15</Text>
+            <Text style={[styles.infoText, { color: subTextColor }]}><Ionicons name="location-outline" /> Sala B5 - Bloco J</Text>
           </View>
-          <Text style={[styles.subjectText, { color: textColor }]}>Mensalidade Março/2026</Text>
-          <Text style={[styles.infoText, { color: subTextColor }]}>Vencimento: 20/03/2026</Text>
-          <Text style={[styles.valueText, { color: textColor }]}>Valor: R$ 850,00</Text>
-          <TouchableOpacity style={styles.buttonRed} onPress={() => navigation.navigate('Faturas')}>
-            <Text style={styles.buttonRedText}>Ir para faturas</Text>
-          </TouchableOpacity>
-        </View>
+        </Animatable.View>
+        
+        <Animatable.View animation="fadeIn" duration={900} delay={150}>
+          <View style={styles.dividerContainer}>
+            <View style={[styles.dividerLine, { backgroundColor: borderColor }]} />
+            <Text style={[styles.dividerText, { color: subTextColor }]}>Pendências & Serviços</Text>
+            <View style={[styles.dividerLine, { backgroundColor: borderColor }]} />
+          </View>
+        </Animatable.View>
 
-        {/* Card: Biblioteca (Recuperado do design original!) */}
-        <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor, marginBottom: 40 }]}>
-          <View style={[styles.cardHeader, { justifyContent: 'space-between' }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="library-outline" size={20} color="#B90000" />
-              <Text style={styles.cardTitle}>Biblioteca</Text>
+        {/* Card 2: Cobranças */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor }]}>
+            <View style={[styles.cardHeader, { justifyContent: 'space-between' }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="card-outline" size={20} color="#B90000" />
+                <Text style={styles.cardTitle}>Cobranças</Text>
+              </View>
+              <View style={styles.badgeRed}><Text style={styles.badgeText}>Pendente</Text></View>
             </View>
-            {/* Usando o mesmo estilo de badge vermelho, mas com outro texto */}
-            <View style={[styles.badgeRed, { backgroundColor: '#FF3B30' }]}><Text style={styles.badgeText}>Atrasado 4 dias</Text></View>
+            <Text style={[styles.subjectText, { color: textColor }]}>Mensalidade Março/2026</Text>
+            <Text style={[styles.infoText, { color: subTextColor }]}>Vencimento: 20/03/2026</Text>
+            <Text style={[styles.valueText, { color: textColor }]}>Valor: R$ 850,00</Text>
+            <TouchableOpacity 
+              style={styles.buttonRed} 
+              onPress={() => navigation.navigate('Faturas')}>
+              <Text style={styles.buttonRedText}>Ir para faturas</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={[styles.subjectText, { color: textColor }]}>Algoritmos e Estruturas de Dados</Text>
-          <Text style={[styles.infoText, { color: subTextColor, marginTop: 5, marginBottom: 15 }]}>
-            <Ionicons name="alert-circle-outline" /> Prazo: 19/03/2026
-          </Text>
-          <TouchableOpacity 
-            style={[styles.buttonRed, { backgroundColor: '#B00000' }]} // Vermelho mais escuro pra diferenciar
-            onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}
-          >
-            <Text style={styles.buttonRedText}>Realizar devolução</Text>
-          </TouchableOpacity>
-        </View>
+        </Animatable.View>
+
+        {/* Card 3: Biblioteca */}
+        <Animatable.View animation="fadeInUp" duration={400} delay={50}>
+          <View style={[styles.card, { backgroundColor: cardColor, borderColor: borderColor, marginBottom: 40 }]}>
+            <View style={[styles.cardHeader, { justifyContent: 'space-between' }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="library-outline" size={20} color="#B90000" />
+                <Text style={styles.cardTitle}>Biblioteca</Text>
+              </View>
+              <View style={[styles.badgeRed, { backgroundColor: '#FF3B30' }]}><Text style={styles.badgeText}>Atrasado 4 dias</Text></View>
+            </View>
+            <Text style={[styles.subjectText, { color: textColor }]}>Algoritmos e Estruturas de Dados</Text>
+            <Text style={[styles.infoText, { color: subTextColor, marginTop: 5, marginBottom: 15 }]}>
+              <Ionicons name="alert-circle-outline" /> Prazo: 19/03/2026
+            </Text>
+            <TouchableOpacity 
+              style={[styles.buttonRed]}   
+              onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}>
+              <Text style={styles.buttonRedText}>Realizar devolução</Text>
+            </TouchableOpacity>
+          </View>
+        </Animatable.View>
 
       </ScrollView>
     </SafeAreaView>
@@ -99,13 +117,14 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  logoContainer: { alignItems: 'center', marginRight: 10, width: 25, height: 25 },
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   headerGreeting: { color: '#fff', fontSize: 14 },
-  headerLogo: { width: 25, height: 25, marginRight: 8 },
+  headerLogo: { width: 20, height: 25, marginLeft:100},
   content: { padding: 20 },
   dateText: { fontSize: 12 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, marginTop: 5 },
@@ -119,5 +138,8 @@ const styles = StyleSheet.create({
   badgeRed: { backgroundColor: '#ff1a1a', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
   badgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   buttonRed: { backgroundColor: '#B90000', padding: 10, borderRadius: 5, alignItems: 'center' },
-  buttonRedText: { color: '#fff', fontWeight: 'bold' }
+  buttonRedText: { color: '#fff', fontWeight: 'bold' },
+  dividerContainer: { flexDirection: 'row', alignItems: 'center',marginVertical: 10, },
+  dividerLine: { flex: 1, height: 1, },
+  dividerText: { marginHorizontal: 10, fontSize: 12, fontWeight: '600', },
 });
