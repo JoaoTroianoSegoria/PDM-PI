@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import * as Animatable from 'react-native-animatable';
@@ -20,23 +20,27 @@ export default function CarteirinhaScreen({ navigation }) {
   const cardColor = isDarkMode ? '#1e1e1e' : '#ffffff';
   const subTextColor = isDarkMode ? '#aaaaaa' : '#666666';
   const borderColor = isDarkMode ? '#333333' : '#B90000';
+  
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
-        <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handleLogout}>
-            <Ionicons name="person-circle-outline" size={40} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.userTextContainer}>
-            <Text style={styles.headerTitle}>UniPortal</Text>
-            <Text style={styles.headerGreeting}>Olá, João</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.header} >
+                    <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
+                    <View style={styles.userInfo}>
+                      <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
+                        <Ionicons name="person-circle-outline" size={40} color="#fff" />
+                      </TouchableOpacity>
+                      <View style={styles.userTextContainer}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={styles.headerTitle}>UniPortal</Text>
+                        </View>
+                        <Text style={styles.headerGreeting}>Olá, João</Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
+                <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
+              </TouchableOpacity>
+                  </View>
 
       <View style={styles.content}>
 
@@ -99,8 +103,9 @@ export default function CarteirinhaScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  logoContainer: { marginRight: 10, width: 25, height: 25 },
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },

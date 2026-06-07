@@ -23,9 +23,11 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
-      <View style={styles.header}>
+  
+      <View style={styles.header} >
+        <Image source={require('../../assets/logo.png')} style={styles.logoContainer} /> 
         <View style={styles.userInfo}>
-          <TouchableOpacity onPress={handleLogout}>
+          <TouchableOpacity onPress={handleLogout} style={{ justifyContent: 'flex-start' }}>
             <Ionicons name="person-circle-outline" size={40} color="#fff" />
           </TouchableOpacity>
           <View style={styles.userTextContainer}>
@@ -35,9 +37,9 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.headerGreeting}>Olá, João</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleTheme} style={{ marginLeft: 'auto' }}>
+    <Ionicons name={isDarkMode ? "sunny" : "moon"} size={24} color="#fff" />
+  </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -79,7 +81,9 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.subjectText, { color: textColor }]}>Mensalidade Março/2026</Text>
             <Text style={[styles.infoText, { color: subTextColor }]}>Vencimento: 20/03/2026</Text>
             <Text style={[styles.valueText, { color: textColor }]}>Valor: R$ 850,00</Text>
-            <TouchableOpacity style={styles.buttonRed} onPress={() => navigation.navigate('Faturas')}>
+            <TouchableOpacity 
+              style={styles.buttonRed} 
+              onPress={() => navigation.navigate('Faturas')}>
               <Text style={styles.buttonRedText}>Ir para faturas</Text>
             </TouchableOpacity>
           </View>
@@ -100,9 +104,8 @@ export default function HomeScreen({ navigation }) {
               <Ionicons name="alert-circle-outline" /> Prazo: 19/03/2026
             </Text>
             <TouchableOpacity 
-              style={[styles.buttonRed, { backgroundColor: '#8B0000' }]} 
-              onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}
-            >
+              style={[styles.buttonRed]}   
+              onPress={() => Alert.alert("Devolução", "Dirija-se ao balcão da biblioteca para devolver o exemplar.")}>
               <Text style={styles.buttonRedText}>Realizar devolução</Text>
             </TouchableOpacity>
           </View>
@@ -114,13 +117,14 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  logoContainer: { alignItems: 'center', marginRight: 10, width: 25, height: 25 },
   container: { flex: 1 },
-  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 40 },
+  header: { backgroundColor: '#B90000', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', padding: 20, paddingTop: 20 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   userTextContainer: { marginLeft: 10 },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   headerGreeting: { color: '#fff', fontSize: 14 },
-  headerLogo: { width: 25, height: 25, marginRight: 8 },
+  headerLogo: { width: 20, height: 25, marginLeft:100},
   content: { padding: 20 },
   dateText: { fontSize: 12 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, marginTop: 5 },
