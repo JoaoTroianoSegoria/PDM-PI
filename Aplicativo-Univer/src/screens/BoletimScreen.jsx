@@ -84,7 +84,7 @@ export default function BoletimScreen({ navigation }) {
               <Text style={[styles.freqLabel, { color: theme.subText }]}>Frequência: {materia.freq}%</Text>
 
               <View style={styles.progressContainer}>
-                <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarBg, { backgroundColor: theme.marker }]}>
                   <View style={[styles.progressBarFill, { width: `${materia.freq}%` }]} />
                   <View style={styles.marker75} />
                 </View>
@@ -131,9 +131,9 @@ const styles = StyleSheet.create({
   gradeBig: { fontSize: 20, fontWeight: 'bold' },
   freqLabel: { fontSize: 12, marginTop: 10 },
   progressContainer: { marginTop: 5, marginBottom: 5 },
-  progressBarBg: { height: 10, backgroundColor: '#e1e1e1', borderRadius: 5, position: 'relative', overflow: 'hidden' },
+  progressBarBg: { height: 10, borderRadius: 5, position: 'relative', overflow: 'hidden' },
   progressBarFill: { height: 10, backgroundColor: colors.primary },
-  marker75: { position: 'absolute', left: '75%', top: 0, bottom: 0, width: 2, backgroundColor: colors.white, zIndex: 1 },
+  marker75: { position: 'absolute', left: '75%', top: 0, bottom: 0, width: 7, backgroundColor: colors.success, zIndex: 1 },
   markerText: { fontSize: 9, color: colors.mutedText, textAlign: 'right', marginRight: '20%' },
   warningText: { color: colors.danger, fontSize: 11, fontWeight: 'bold', marginTop: 8, fontStyle: 'italic' },
 });

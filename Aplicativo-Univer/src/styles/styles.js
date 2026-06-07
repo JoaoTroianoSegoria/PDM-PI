@@ -16,6 +16,8 @@ export const colors = {
   homeLightBorder: '#ffcccc',
   tabLight: '#e0e0e0',
   tabDark: '#333333',
+  markerDark: '#888888d3',
+  markerLight: '#cac8c8',
 };
 
 export const getThemeColors = (isDarkMode, overrides = {}) => ({
@@ -26,6 +28,7 @@ export const getThemeColors = (isDarkMode, overrides = {}) => ({
   border: isDarkMode ? colors.darkBorder : colors.lightBorder,
   tabContainer: isDarkMode ? colors.tabDark : colors.tabLight,
   activeTab: colors.primary,
+  marker: isDarkMode ? colors.markerDark : colors.markerLight,
   ...overrides,
 });
 
