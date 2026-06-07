@@ -1,49 +1,45 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-
-// Importação do Provedor de Tema e do Hook
-import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
-
-// Importação de todas as Telas
-import LoginScreen from './src/screens/LoginScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import DisciplinasScreen from './src/screens/DisciplinasScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BoletimScreen from './src/screens/BoletimScreen';
 import CarteirinhaScreen from './src/screens/CarteirinhaScreen';
+import DisciplinasScreen from './src/screens/DisciplinasScreen';
 import FaturasScreen from './src/screens/FaturasScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { colors, getThemeColors } from './src/styles/styles';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const globalRed = '#B90000'; 
+const tabIcons = {
+  'Início': ['home', 'home-outline'],
+  'Disciplinas': ['book', 'book-outline'],
+  'Boletim': ['document-text', 'document-text-outline'],
+  'Carteirinha': ['id-card', 'id-card-outline'],
+  'Faturas': ['card', 'card-outline'],
+};
 
-// Navegação por Abas
 function MainTabs() {
-  // Puxando o tema para aplicar no rodapé
   const { isDarkMode } = useTheme();
+  const theme = getThemeColors(isDarkMode);
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: globalRed,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'gray',
-        // Estilo dinâmico do rodapé
         tabBarStyle: {
-          backgroundColor: isDarkMode ? '#1e1e1e' : '#ffffff',
-          borderTopColor: isDarkMode ? '#333333' : '#e0e0e0',
+          backgroundColor: theme.card,
+          borderTopColor: isDarkMode ? colors.darkBorder : colors.tabLight,
         },
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'Início') iconName = focused ? 'home' : 'home-outline';
-          else if (route.name === 'Disciplinas') iconName = focused ? 'book' : 'book-outline';
-          else if (route.name === 'Boletim') iconName = focused ? 'document-text' : 'document-text-outline';
-          else if (route.name === 'Carteirinha') iconName = focused ? 'id-card' : 'id-card-outline';
-          else if (route.name === 'Faturas') iconName = focused ? 'card' : 'card-outline';
-          return <Ionicons name={iconName} size={size} color={color} />;
+          const [activeIcon, inactiveIcon] = tabIcons[route.name];
+          return <Ionicons name={focused ? activeIcon : inactiveIcon} size={size} color={color} />;
         },
       })}
     >
@@ -56,7 +52,6 @@ function MainTabs() {
   );
 }
 
-// Componente Principal
 export default function App() {
   return (
     <ThemeProvider>
