@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id         String   @id @default(cuid())
+  cpf        String   @unique
+  matricula  String   @unique
+  password   String   
+  createdAt  DateTime @default(now())
+}
+
+model Disciplina {
+  id        String  @id @default(cuid())
+  nome      String
+  codigo    String
+  turma     String
+  professor String
+  media     Decimal @db.Decimal(4, 2)
+  boletim   Boletim?
+}
+
+model Boletim {
+  id            String     @id @default(cuid())
+  notaP1        Decimal    @db.Decimal(4, 2)
+  notaP2        Decimal    @db.Decimal(4, 2)
+  frequencia    Int
+  disciplinaId  String     @unique
+  disciplina    Disciplina @relation(fields: [disciplinaId], references: [id])
+}
+
+model Fatura {
+  id          String   @id @default(cuid())
+  mes         String
+  vencimento  DateTime
+  valor       Decimal  @db.Decimal(12, 2)
+  status      String   
+}
