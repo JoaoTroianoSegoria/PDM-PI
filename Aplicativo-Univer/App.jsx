@@ -1,8 +1,10 @@
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BoletimScreen from './src/screens/BoletimScreen';
 import CarteirinhaScreen from './src/screens/CarteirinhaScreen';
 import DisciplinasScreen from './src/screens/DisciplinasScreen';
@@ -10,17 +12,17 @@ import FaturasScreen from './src/screens/FaturasScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
-import { colors, getThemeColors } from './src/styles/styles';
+import { UniverProvider, useUniver } from './src/contexts/UniverContext';
+import { colors, getThemeColors, sharedStyles } from './src/styles/styles';
 
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const tabIcons = {
-  'Início': ['home', 'home-outline'],
-  'Disciplinas': ['book', 'book-outline'],
-  'Boletim': ['document-text', 'document-text-outline'],
-  'Carteirinha': ['id-card', 'id-card-outline'],
-  'Faturas': ['card', 'card-outline'],
+  Início: ['home', 'home-outline'],
+  Disciplinas: ['book', 'book-outline'],
+  Boletim: ['document-text', 'document-text-outline'],
+  Carteirinha: ['id-card', 'id-card-outline'],
+  Faturas: ['card', 'card-outline'],
 };
 
 function MainTabs() {
@@ -38,7 +40,7 @@ function MainTabs() {
           borderTopColor: isDarkMode ? colors.darkBorder : colors.tabLight,
         },
         tabBarIcon: ({ focused, color, size }) => {
-          const [activeIcon, inactiveIcon] = tabIcons[route.name];
+          const [activeIcon, inactiveIcon] = tabIcons[route.name] ?? ['ellipse', 'ellipse-outline'];
           return <Ionicons name={focused ? activeIcon : inactiveIcon} size={size} color={color} />;
         },
       })}
@@ -52,15 +54,34 @@ function MainTabs() {
   );
 }
 
+function AppNavigator() {
+  const { authLoading, user } = useUniver();
+
+  if (authLoading) {
+    return (
+      <View style={[sharedStyles.centerContent, { backgroundColor: colors.primaryDark }]}>
+        <ActivityIndicator size="large" color={colors.white} />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      {user ? <MainTabs /> : <LoginScreen />}
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   return (
-    <ThemeProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
-          <Stack.Screen name="Main" component={MainTabs} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <UniverProvider>
+            <AppNavigator />
+          </UniverProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

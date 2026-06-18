@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useUniver } from '../contexts/UniverContext';
 import { colors } from '../styles/styles';
 
-export default function LoginScreen({ navigation }) {
-  const [usuario, setUsuario] = useState('');
-  const [senha, setSenha] = useState('');
+export default function LoginScreen() {
+  const { login } = useUniver();
+  const [usuario, setUsuario] = useState('2512130067');
+  const [senha, setSenha] = useState('52998224725');
+  const [submitting, setSubmitting] = useState(false);
 
   const validarCPF = (cpf) => {
     cpf = cpf.replace(/[^\d]+/g, '');
@@ -29,7 +32,7 @@ export default function LoginScreen({ navigation }) {
     return true;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (usuario.length !== 10 || isNaN(usuario)) {
       Alert.alert('Erro no Usuário', 'O usuário deve conter exatamente 10 números.');
       return;
@@ -45,7 +48,17 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    navigation.replace('Main');
+    setSubmitting(true);
+    try {
+      await login({
+        registration: usuario,
+        cpf: senha,
+      });
+    } catch (error) {
+      Alert.alert('Não foi possível entrar', error.message ?? 'Tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -81,8 +94,8 @@ export default function LoginScreen({ navigation }) {
             onSubmitEditing={handleLogin}
           />
 
-          <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin}>
-            <Text style={styles.buttonLoginText}>ENTRAR</Text>
+          <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin} disabled={submitting}>
+            <Text style={styles.buttonLoginText}>{submitting ? 'ENTRANDO...' : 'ENTRAR'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => Alert.alert('Suporte', 'Procure a secretaria.')}>

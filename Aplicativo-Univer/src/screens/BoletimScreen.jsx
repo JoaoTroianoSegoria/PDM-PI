@@ -4,8 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
+import StatusView from '../components/StatusView';
 import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUniver } from '../contexts/UniverContext';
 
 const MEDIA_APROVACAO = 5;
 const NOTA_MAXIMA = 10;
@@ -97,33 +99,41 @@ const getDiagnostico = (materia) => {
     valor: substitutiva.nota > NOTA_MAXIMA ? 'Acima de 10' : `Sub: ${formatNota(substitutiva.nota)}`,
     texto:
       substitutiva.nota > NOTA_MAXIMA
-        ? 'Mesmo substituindo a melhor prova, não fecha média 7.'
+        ? 'Mesmo substituindo a melhor prova, não fecha a média mínima.'
         : `Melhor usar a substitutiva no lugar da ${substitutiva.alvo}.`,
     cor: substitutiva.nota > NOTA_MAXIMA ? colors.danger : colors.primary,
   };
 };
 
-export default function BoletimScreen({ navigation }) {
+export default function BoletimScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
+  const { error, grades, loading, logout, refresh } = useUniver();
   const [expandedId, setExpandedId] = useState(null);
   const theme = getThemeColors(isDarkMode);
   const panelBg = isDarkMode ? '#262626' : '#f7f7f7';
 
-  const materias = [
-  { id: '1', nome: 'Computação Gráfica', cod: 'MCA304', p1: 7.5, p2: 8.0, substitutiva: null, freq: 85 },
-  { id: '2', nome: 'Cálculo Numérico', cod: 'MAT201', p1: 9.0, p2: 8.2, substitutiva: null, freq: 73 },
-  { id: '3', nome: 'Projeto Integrador', cod: 'BDC312', p1: 8.5, p2: 9.7, substitutiva: null, freq: 100 },
-
-  // Disciplina para testar o cálculo da P2 necessária
-  { id: '4', nome: 'Banco de Dados', cod: 'BDC205', p1: 6.5, p2: null, substitutiva: null, freq: 82 },
-];
-
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja sair da conta?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', onPress: () => navigation.replace('Login'), style: 'destructive' },
+      { text: 'Sair', onPress: logout, style: 'destructive' },
     ]);
   };
+
+  if (loading && grades.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView isDarkMode={isDarkMode} message="Carregando boletim..." />
+      </SafeAreaView>
+    );
+  }
+
+  if (error && grades.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView error={error} isDarkMode={isDarkMode} onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -135,7 +145,7 @@ export default function BoletimScreen({ navigation }) {
           <Text style={[styles.subtitle, { color: theme.subText }]}>Semestre 2026.1</Text>
         </Animatable.View>
 
-        {materias.map((materia, index) => {
+        {grades.map((materia, index) => {
           const expanded = expandedId === materia.id;
           const mediaFinal = calcularMediaFinal(materia);
           const diagnostico = getDiagnostico(materia);

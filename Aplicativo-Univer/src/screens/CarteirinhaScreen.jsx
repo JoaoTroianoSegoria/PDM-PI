@@ -4,19 +4,38 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
+import StatusView from '../components/StatusView';
 import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUniver } from '../contexts/UniverContext';
 
-export default function CarteirinhaScreen({ navigation }) {
+export default function CarteirinhaScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
+  const { error, loading, logout, refresh, studentCard } = useUniver();
   const theme = getThemeColors(isDarkMode);
 
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja encerrar a sessão?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', onPress: () => navigation.replace('Login'), style: 'destructive' },
+      { text: 'Sair', onPress: logout, style: 'destructive' },
     ]);
   };
+
+  if (loading && !studentCard) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView isDarkMode={isDarkMode} message="Carregando carteirinha..." />
+      </SafeAreaView>
+    );
+  }
+
+  if (error && !studentCard) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView error={error} isDarkMode={isDarkMode} onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -36,17 +55,17 @@ export default function CarteirinhaScreen({ navigation }) {
               </View>
             </View>
             <View style={styles.idInfo}>
-              <Text style={styles.userName}>João</Text>
-              <Text style={styles.userRA}>RA: 2512130067</Text>
-              <Text style={styles.userCourse}>Ciência da Computação</Text>
+              <Text style={styles.userName}>{studentCard?.firstName}</Text>
+              <Text style={styles.userRA}>RA: {studentCard?.registration}</Text>
+              <Text style={styles.userCourse}>{studentCard?.course}</Text>
               <View style={styles.idFooter}>
                 <View>
                   <Text style={styles.label}>Semestre Atual</Text>
-                  <Text style={styles.value}>5º Semestre</Text>
+                  <Text style={styles.value}>{studentCard?.currentSemester}</Text>
                 </View>
                 <View>
                   <Text style={styles.label}>Válido até:</Text>
-                  <Text style={styles.value}>12/2027</Text>
+                  <Text style={styles.value}>{studentCard?.validUntil}</Text>
                 </View>
               </View>
             </View>
@@ -58,7 +77,7 @@ export default function CarteirinhaScreen({ navigation }) {
             <Ionicons name="finger-print-outline" size={20} color={colors.primary} />
             <View style={styles.fieldTexts}>
               <Text style={[styles.fieldLabel, { color: theme.subText }]}>Matrícula</Text>
-              <Text style={[styles.fieldValue, { color: theme.text }]}>2512130067</Text>
+              <Text style={[styles.fieldValue, { color: theme.text }]}>{studentCard?.registration}</Text>
             </View>
           </View>
         </Animatable.View>
