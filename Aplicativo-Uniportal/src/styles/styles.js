@@ -40,6 +40,23 @@ export const sharedStyles = {
   container: { flex: 1 },
   content: { padding: 20 },
   centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  statusContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    padding: 24,
+  },
+  statusTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  statusText: {
+    color: colors.mutedText,
+    fontSize: 14,
+    textAlign: 'center',
+  },
 
   header: {
     backgroundColor: colors.primary,

@@ -1,0 +1,253 @@
+{
+  "info": {
+    "_postman_id": "d55b7b28-6a24-45cb-b7e0-5bf9a1d8d51a",
+    "name": "Aplicativo Univer API",
+    "description": "Collection para testar a API do Aplicativo Univer. Execute em ordem. O login salva o token em {{apiToken}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Health-check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('API saudavel', function () {",
+              "  pm.expect(json.ok).to.eql(true);",
+              "  pm.expect(json.name).to.eql('aplicativo-univer-api');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"registration\": \"2512130067\",\n  \"cpf\": \"52998224725\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/auth/login"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Retorna token e usuario', function () {",
+              "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.user.registration).to.eql('2512130067');",
+              "});",
+              "pm.collectionVariables.set('apiToken', json.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Perfil autenticado",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/auth/me"
+      },
+      "response": []
+    },
+    {
+      "name": "04 - Dashboard",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/dashboard"
+      },
+      "response": []
+    },
+    {
+      "name": "05 - Carteirinha",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/student-card"
+      },
+      "response": []
+    },
+    {
+      "name": "06 - Disciplinas",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/disciplines"
+      },
+      "response": []
+    },
+    {
+      "name": "07 - Boletim",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/grades"
+      },
+      "response": []
+    },
+    {
+      "name": "08 - Faturas",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/invoices"
+      },
+      "response": []
+    },
+    {
+      "name": "09 - Biblioteca",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{apiToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/library-loans"
+      },
+      "response": []
+    },
+    {
+      "name": "10 - Rota protegida sem token",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/academic/dashboard"
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Token ausente', function () {",
+              "  pm.expect(json.error).to.eql('Token não informado');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "apiToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

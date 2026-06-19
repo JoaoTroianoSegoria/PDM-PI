@@ -4,11 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
+import StatusView from '../components/StatusView';
 import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUniver } from '../contexts/UniverContext';
 
-export default function FaturasScreen({ navigation }) {
+export default function FaturasScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
+  const { error, invoices, loading, logout, refresh } = useUniver();
   const [abaAtual, setAbaAtual] = useState('pendentes');
   const theme = getThemeColors(isDarkMode, {
     card: isDarkMode ? colors.darkCard : colors.invoiceCardLight,
@@ -17,18 +20,25 @@ export default function FaturasScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja encerrar a sessão?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', onPress: () => navigation.replace('Login'), style: 'destructive' },
+      { text: 'Sair', onPress: logout, style: 'destructive' },
     ]);
   };
 
-  const faturasPendentes = [
-    { id: '1', mes: 'Março/2026', vencimento: '20/03/2026', valor: 'R$ 850,00', status: 'Pendente' },
-  ];
+  if (loading && invoices.pending.length === 0 && invoices.history.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView isDarkMode={isDarkMode} message="Carregando faturas..." />
+      </SafeAreaView>
+    );
+  }
 
-  const historicoFaturas = [
-    { id: '2', mes: 'Fevereiro/2026', vencimento: '20/02/2026', valor: 'R$ 850,00', status: 'Pago', dataPagamento: '19/02/2026' },
-    { id: '3', mes: 'Janeiro/2026', vencimento: '20/01/2026', valor: 'R$ 850,00', status: 'Pago', dataPagamento: '15/01/2026' },
-  ];
+  if (error && invoices.pending.length === 0 && invoices.history.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView error={error} isDarkMode={isDarkMode} onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
 
   const getTabTextStyle = (isActive) => [styles.tabText, isActive && styles.activeTabText];
 
@@ -59,10 +69,12 @@ export default function FaturasScreen({ navigation }) {
           <View>
             <Animatable.View animation="fadeInUp" duration={animation.duration} delay={150}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Faturas Pendentes</Text>
-              <Text style={[styles.subtitle, { color: theme.subText }]}>{faturasPendentes.length} fatura pendente</Text>
+              <Text style={[styles.subtitle, { color: theme.subText }]}>
+                {invoices.pending.length} fatura pendente
+              </Text>
             </Animatable.View>
 
-            {faturasPendentes.map((item, index) => (
+            {invoices.pending.map((item, index) => (
               <Animatable.View key={item.id} animation="fadeInUp" duration={animation.duration} delay={250 + index * 100}>
                 <View style={[styles.invoiceCard, { backgroundColor: theme.card }]}>
                   <View style={styles.invoiceHeader}>
@@ -81,7 +93,10 @@ export default function FaturasScreen({ navigation }) {
                     <Text style={styles.valueLarge}>{item.valor}</Text>
                   </View>
 
-                  <TouchableOpacity style={[styles.primaryButton, styles.payButton]}>
+                  <TouchableOpacity
+                    style={[styles.primaryButton, styles.payButton]}
+                    onPress={() => Alert.alert('Pagamento', 'Funcionalidade de pagamento simulada para o projeto.')}
+                  >
                     <Ionicons name="card" size={20} color="#fff" />
                     <Text style={[styles.primaryButtonText, styles.payButtonText]}>Pagar agora</Text>
                   </TouchableOpacity>
@@ -96,7 +111,7 @@ export default function FaturasScreen({ navigation }) {
               <Text style={[styles.subtitle, { color: theme.subText }]}>Faturas já quitadas</Text>
             </Animatable.View>
 
-            {historicoFaturas.map((item, index) => (
+            {invoices.history.map((item, index) => (
               <Animatable.View key={item.id} animation="fadeInUp" duration={animation.duration} delay={250 + index * 100}>
                 <View style={[styles.invoiceCard, { backgroundColor: theme.card, borderWidth: 1, borderColor: colors.success }]}>
                   <View style={styles.invoiceHeader}>

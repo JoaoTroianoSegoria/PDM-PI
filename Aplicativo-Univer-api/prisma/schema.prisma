@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  registration String   @unique
+  cpfHash      String
+  studentId    String   @unique
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model Student {
+  id              String        @id @default(cuid())
+  name            String
+  registration    String        @unique
+  cpf             String        @unique
+  course          String
+  currentSemester String
+  validUntil      String
+  createdAt       DateTime      @default(now())
+  user            User?
+  enrollments     Enrollment[]
+  grades          Grade[]
+  invoices        Invoice[]
+  schedules       Schedule[]
+  libraryLoans    LibraryLoan[]
+}
+
+model Subject {
+  id          String       @id @default(cuid())
+  name        String
+  code        String       @unique
+  professor   String?
+  enrollments Enrollment[]
+  grades      Grade[]
+  schedules   Schedule[]
+  createdAt   DateTime     @default(now())
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  subjectId String
+  className String
+  schedule  String
+  room      String
+  semester  String
+  status    String
+  finalNote Float?
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, subjectId, semester])
+}
+
+model Grade {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  semester     String
+  p1           Float?
+  p2           Float?
+  substitutiva Float?
+  frequency    Int
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([studentId, subjectId, semester])
+}
+
+model Invoice {
+  id          String    @id @default(cuid())
+  studentId   String
+  month       String
+  dueDate     DateTime
+  amount      Decimal   @db.Decimal(12, 2)
+  status      String
+  paymentDate DateTime?
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  studentId String
+  subjectId String
+  weekDay   String
+  startTime String
+  endTime   String
+  room      String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model LibraryLoan {
+  id         String    @id @default(cuid())
+  studentId  String
+  title      String
+  dueDate    DateTime
+  returnedAt DateTime?
+  status     String
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+}

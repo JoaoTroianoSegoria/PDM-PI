@@ -1,67 +1,192 @@
-# 🎓 UniPortal - Protótipo de Aplicativo Universitário
+# UniPortal - Aplicativo Univer
 
-O **UniPortal** é um protótipo de aplicativo móvel desenvolvido para facilitar a vida acadêmica dos estudantes. O projeto foca em uma interface intuitiva, interativa e funcional, permitindo que o aluno gerencie suas notas, frequências, horários e faturas em um único lugar.
+Aplicativo acadêmico desenvolvido com Expo/React Native e integrado a uma API Node.js com Express, Prisma e MySQL.
 
-Este projeto faz parte do **Projeto Integrador (PI)** da faculdade IESB. 
+O projeto permite autenticar um aluno, carregar dados acadêmicos do banco e visualizar informações de início, disciplinas, boletim, carteirinha, faturas e biblioteca.
 
-## Esse trabalho foi desenvolvido por:
-João Otavio Troiano Segoria.<br>
-João Pedro Gonçalves Campos Silva.<br>
-Gabriel Castagnaro Macêdo.<br>
- 
-## 🚀 Funcionalidades:
+## Integrantes
 
-O aplicativo conta com um fluxo completo de navegação e as seguintes telas interativas:
+- João Otavio Troiano Segoria
+- João Pedro Gonçalves Campos Silva
+- Gabriel Castagnaro Macêdo
 
-* **Login**: Tela de entrada com validação de campos e suporte a envio pelo teclado.
-* **Início (Home)**: Visão geral da grade do dia, avisos de aulas e cobranças pendentes com navegação direta.
-* **Disciplinas**: Lista detalhada das matérias do semestre atual e aba de histórico de disciplinas concluídas.
-* **Boletim**: Visualização de desempenho com médias gerais, frequências e gráficos de distribuição de notas.
-* **Carteirinha Estudantil**: Documento de identificação digital com QR Code de validação.
-* **Faturas**: Gerenciamento financeiro com abas para faturas pendentes e histórico de pagamentos realizados.
+## Estrutura Do Projeto
 
-### 🌗 Diferenciais
-* **Modo Escuro (Dark Mode) Universal**: Implementado via Context API, permitindo alternar o tema em qualquer tela do app através do ícone no cabeçalho.
-* **Navegação Fluida**: Utilização de `Stack Navigator` para o fluxo de autenticação e `Bottom Tab Navigator` para o menu principal.
-* **Ergonomia e Responsividade**: Implementação do componente `KeyboardAvoidingView` garantindo que o teclado do celular não sobreponha os campos de texto durante o login, além do uso de `SafeAreaView` para respeitar os entalhes (notches) das telas de dispositivos modernos.
-* **Identidade Visual Consistente**: Uso padronizado da cor principal (Vermelho `#B90000`) guiando a atenção do usuário em botões primários, contornos de cards e cabeçalhos.
+```text
+PDM-PI/
+  Aplicativo-Univer/       aplicativo mobile em Expo/React Native
+  Aplicativo-Univer-api/   API em Node.js/Express/Prisma/MySQL
+```
 
-## 🛠️ Tecnologias utilizadas até agora:
+## Funcionalidades
 
-O projeto foi construído utilizando as seguintes tecnologias:
+- Login com matrícula e CPF.
+- Autenticação via token JWT.
+- Mensagem de boas-vindas com o nome do aluno autenticado.
+- Integração do frontend com API HTTP.
+- Dados salvos e lidos em banco MySQL.
+- Tela inicial com aula do dia, fatura pendente e pendência de biblioteca.
+- Lista de disciplinas atuais e histórico acadêmico.
+- Boletim com cálculo de média, frequência e situação do aluno.
+- Carteirinha estudantil digital.
+- Faturas pendentes e histórico de pagamentos.
+- Tema claro/escuro.
+- Collection do Postman para testar os endpoints.
 
-* **[React Native](https://reactnative.dev/)** - Framework para desenvolvimento mobile.
-* **[Expo](https://expo.dev/)** - Plataforma para facilitação do desenvolvimento e testes.
-* **[React Navigation](https://reactnavigation.org/)** - Biblioteca oficial para navegação entre telas.
-* **[Expo Vector Icons](https://icons.expo.fyi/)** - Conjunto de ícones (Ionicons) para interface.
-* **Context API** - Gerenciamento de estado global para o tema (Modo Escuro).
+## Tecnologias
 
-## 💻 Como Rodar o Projeto
+- React Native
+- Expo
+- React Navigation
+- AsyncStorage
+- Node.js
+- Express
+- Prisma ORM
+- MySQL
+- Zod
+- JWT
+- bcryptjs
 
-### Pré-requisitos
-* Node.js instalado.
-* Expo Go instalado no celular ou Android Studio configurado (Emulador).
+## Pré-Requisitos
 
-### Instalação
+Instale antes de rodar:
 
-1. Clone o repositório:
-   ```bash
-   git clone [https://github.com/joaotroianosegoria/pdm-pi.git](https://github.com/joaotroianosegoria/pdm-pi.git)
+- Node.js LTS
+- npm
+- MySQL Server
+- Expo Go no celular ou emulador Android
+- Postman, opcional para testar a API
 
+## Configurar O Banco
 
-2.Acesse a pasta do projeto:
-````
-cd Aplicativo-Univer
-Instale as dependências:
-````
-3.Instale as dependências:
-````
-Bash
+Abra o MySQL como administrador/root e rode:
+
+```sql
+CREATE DATABASE IF NOT EXISTS univer;
+
+CREATE USER IF NOT EXISTS 'univer_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'univer123';
+CREATE USER IF NOT EXISTS 'univer_user'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'univer123';
+
+ALTER USER 'univer_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'univer123';
+ALTER USER 'univer_user'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'univer123';
+
+GRANT ALL PRIVILEGES ON univer.* TO 'univer_user'@'localhost';
+GRANT ALL PRIVILEGES ON univer.* TO 'univer_user'@'127.0.0.1';
+FLUSH PRIVILEGES;
+```
+
+O `mysql_native_password` evita erro de autenticação do Prisma com alguns MySQL instalados localmente.
+
+## Rodar A API
+
+Em um terminal:
+
+```bash
+cd Aplicativo-Univer-api
 npm install
-Inicie o servidor do Expo:
-````
-4.Inicie o servidor do Expo:
-````
-Bash
-npx expo start
-````
+cp .env.example .env
+```
+
+No arquivo `.env`, use:
+
+```env
+DATABASE_URL="mysql://univer_user:univer123@127.0.0.1:3306/univer"
+PORT=3001
+JWT_SECRET="univer-dev-secret"
+```
+
+Depois execute:
+
+```bash
+npm run prisma:push
+npm run prisma:seed
+npm run dev
+```
+
+Teste no navegador:
+
+```text
+http://localhost:3001
+```
+
+Resposta esperada:
+
+```json
+{
+  "ok": true,
+  "name": "aplicativo-univer-api"
+}
+```
+
+## Rodar O Aplicativo
+
+Em outro terminal:
+
+```bash
+cd Aplicativo-Univer
+npm install
+cp .env.example .env
+npm start
+```
+
+No emulador Android, o app usa automaticamente:
+
+```text
+http://10.0.2.2:3001
+```
+
+No celular físico, coloque o IP do computador no arquivo `Aplicativo-Univer/.env`:
+
+```env
+EXPO_PUBLIC_API_URL=http://SEU_IP:3001
+```
+
+Depois reinicie o Expo limpando o cache:
+
+```bash
+npx expo start --clear
+```
+
+## Login De Teste
+
+O seed cria um aluno de demonstração:
+
+```text
+Usuário: 2512130067
+Senha/CPF: 52998224725
+```
+
+## Testes No Postman
+
+Importe a collection:
+
+```text
+Aplicativo-Univer-api/postman/collection.json
+```
+
+A collection possui o login, salva o token JWT e testa as rotas protegidas.
+
+## Comandos Úteis
+
+API:
+
+```bash
+npm run dev
+npm run prisma:push
+npm run prisma:seed
+npm run prisma:studio
+```
+
+Aplicativo:
+
+```bash
+npm start
+npm run android
+npm run web
+```
+
+## Observações Para Entrega
+
+- Não versionar `.env`, `.expo` ou `node_modules`.
+- Versionar `.env.example`, `package.json`, `package-lock.json`, `prisma/schema.prisma`, migrations, seed e collection do Postman.
+- Antes da apresentação, deixe o MySQL e a API rodando.

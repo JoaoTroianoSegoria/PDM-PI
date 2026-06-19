@@ -4,32 +4,39 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
+import StatusView from '../components/StatusView';
 import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUniver } from '../contexts/UniverContext';
 
-export default function DisciplinasScreen({ navigation }) {
+export default function DisciplinasScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
+  const { disciplines, error, loading, logout, refresh } = useUniver();
   const [abaAtual, setAbaAtual] = useState('atuais');
   const theme = getThemeColors(isDarkMode);
 
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja encerrar a sessão?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', onPress: () => navigation.replace('Login'), style: 'destructive' },
+      { text: 'Sair', onPress: logout, style: 'destructive' },
     ]);
   };
 
-  const disciplinasAtuais = [
-    { id: '1', nome: 'Cálculo Numérico', cod: 'MAT201', turma: 'Turma A', prof: 'Prof. Valnei Alves Fernandes', horario: 'Segunda-feira 8:15 - 11:00', sala: 'Sala PCA2' },
-    { id: '2', nome: 'Computação Gráfica', cod: 'MCA304', turma: 'Turma B', prof: 'Prof. Sofia Mitsuyo Taguchi da Cunha', horario: 'Segunda-feira 11:00 - 12:15', sala: 'Sala PCB1' },
-    { id: '3', nome: 'Projeto Integrador', cod: 'BDC312', turma: 'Turma A', prof: 'Prof. Marcelo Alves Farias', horario: 'Sexta-feira 11:00 - 12:15', sala: 'Sala PJB5' },
-  ];
+  if (loading && disciplines.current.length === 0 && disciplines.history.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView isDarkMode={isDarkMode} message="Carregando disciplinas..." />
+      </SafeAreaView>
+    );
+  }
 
-  const historico = [
-    { id: '1', nome: 'Algoritmos e Estruturas de Dados', cod: 'ALG201', status: 'Aprovado', nota: '8.5', semestre: '2025.2' },
-    { id: '2', nome: 'Lógica de Programação', cod: 'LOG100', status: 'Aprovado', nota: '9.0', semestre: '2025.1' },
-    { id: '3', nome: 'Matemática Discreta', cod: 'MAT105', status: 'Aprovado', nota: '7.8', semestre: '2025.1' },
-  ];
+  if (error && disciplines.current.length === 0 && disciplines.history.length === 0) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView error={error} isDarkMode={isDarkMode} onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
 
   const getTabTextStyle = (isActive) => [styles.tabText, isActive && styles.activeTabText];
 
@@ -61,11 +68,11 @@ export default function DisciplinasScreen({ navigation }) {
             <Animatable.View animation="fadeInUp" duration={animation.duration} delay={150}>
               <Text style={[styles.semesterTitle, { color: theme.text }]}>5º Semestre - 2026</Text>
               <Text style={[styles.subtitle, { color: theme.subText }]}>
-                {disciplinasAtuais.length} disciplinas matriculadas
+                {disciplines.current.length} disciplinas matriculadas
               </Text>
             </Animatable.View>
 
-            {disciplinasAtuais.map((item, index) => (
+            {disciplines.current.map((item, index) => (
               <Animatable.View key={item.id} animation="fadeInUp" duration={animation.duration} delay={250 + index * 100}>
                 <View style={[styles.card, { backgroundColor: theme.card }]}>
                   <View style={styles.cardHeaderBetween}>
@@ -98,7 +105,7 @@ export default function DisciplinasScreen({ navigation }) {
               <Text style={[styles.subtitle, { color: theme.subText }]}>Disciplinas concluídas</Text>
             </Animatable.View>
 
-            {historico.map((item, index) => (
+            {disciplines.history.map((item, index) => (
               <Animatable.View key={item.id} animation="fadeInUp" duration={animation.duration} delay={250 + index * 100}>
                 <View style={[styles.card, { backgroundColor: theme.card, borderColor: colors.success }]}>
                   <View style={styles.cardHeaderBetween}>

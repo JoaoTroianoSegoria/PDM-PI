@@ -4,11 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
+import StatusView from '../components/StatusView';
 import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUniver } from '../contexts/UniverContext';
 
 export default function HomeScreen({ navigation }) {
   const { isDarkMode, toggleTheme } = useTheme();
+  const { dashboard, error, loading, logout, refresh } = useUniver();
   const theme = getThemeColors(isDarkMode, {
     border: isDarkMode ? colors.darkBorder : colors.homeLightBorder,
   });
@@ -16,16 +19,38 @@ export default function HomeScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja sair?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', onPress: () => navigation.replace('Login'), style: 'destructive' },
+      { text: 'Sair', onPress: logout, style: 'destructive' },
     ]);
   };
+
+  if (loading && !dashboard) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView isDarkMode={isDarkMode} message="Carregando portal..." />
+      </SafeAreaView>
+    );
+  }
+
+  if (error && !dashboard) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <StatusView error={error} isDarkMode={isDarkMode} onRetry={refresh} />
+      </SafeAreaView>
+    );
+  }
+
+  const todayClass = dashboard?.todayClass;
+  const pendingInvoice = dashboard?.pendingInvoice;
+  const activeLoan = dashboard?.activeLoan;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <AppHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} onLogout={handleLogout} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.dateText, { color: theme.subText }]}>Sexta-feira, 13 de março de 2026</Text>
+        <Text style={[styles.dateText, { color: theme.subText }]}>
+          {dashboard?.dateLabel ?? 'Agenda acadêmica'}
+        </Text>
         <Text style={[styles.sectionTitle, styles.homeSectionTitle, { color: theme.text }]}>Sua grade de hoje</Text>
 
         <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
@@ -34,14 +59,20 @@ export default function HomeScreen({ navigation }) {
               <Ionicons name="calendar-outline" size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Aula de Hoje</Text>
             </View>
-            <Text style={[styles.subjectText, { color: theme.text }]}>Projeto integrador</Text>
-            <Text style={[styles.profText, { color: theme.subText }]}>Prof. Marcelo Alves Farias</Text>
-            <Text style={[styles.infoText, { color: theme.subText }]}>
-              <Ionicons name="time-outline" /> 11:00 - 12:15
-            </Text>
-            <Text style={[styles.infoText, { color: theme.subText }]}>
-              <Ionicons name="location-outline" /> Sala B5 - Bloco J
-            </Text>
+            {todayClass ? (
+              <>
+                <Text style={[styles.subjectText, { color: theme.text }]}>{todayClass.subjectName}</Text>
+                <Text style={[styles.profText, { color: theme.subText }]}>{todayClass.professor}</Text>
+                <Text style={[styles.infoText, { color: theme.subText }]}>
+                  <Ionicons name="time-outline" /> {todayClass.timeRange}
+                </Text>
+                <Text style={[styles.infoText, { color: theme.subText }]}>
+                  <Ionicons name="location-outline" /> {todayClass.room}
+                </Text>
+              </>
+            ) : (
+              <Text style={[styles.infoText, { color: theme.subText }]}>Nenhuma aula cadastrada para hoje.</Text>
+            )}
           </View>
         </Animatable.View>
 
@@ -53,49 +84,53 @@ export default function HomeScreen({ navigation }) {
           </View>
         </Animatable.View>
 
-        <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
-          <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <View style={styles.cardHeaderBetweenCenter}>
-              <View style={styles.rowCenter}>
-                <Ionicons name="card-outline" size={20} color={colors.primary} />
-                <Text style={styles.cardTitle}>Cobranças</Text>
+        {pendingInvoice && (
+          <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
+            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <View style={styles.cardHeaderBetweenCenter}>
+                <View style={styles.rowCenter}>
+                  <Ionicons name="card-outline" size={20} color={colors.primary} />
+                  <Text style={styles.cardTitle}>Cobranças</Text>
+                </View>
+                <View style={styles.badgeRed}>
+                  <Text style={styles.badgeText}>{pendingInvoice.status}</Text>
+                </View>
               </View>
-              <View style={styles.badgeRed}>
-                <Text style={styles.badgeText}>Pendente</Text>
-              </View>
+              <Text style={[styles.subjectText, { color: theme.text }]}>Mensalidade {pendingInvoice.mes}</Text>
+              <Text style={[styles.infoText, { color: theme.subText }]}>Vencimento: {pendingInvoice.vencimento}</Text>
+              <Text style={[styles.valueText, { color: theme.text }]}>Valor: {pendingInvoice.valor}</Text>
+              <TouchableOpacity style={[styles.primaryButton, styles.buttonRed]} onPress={() => navigation.navigate('Faturas')}>
+                <Text style={styles.primaryButtonText}>Ir para faturas</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={[styles.subjectText, { color: theme.text }]}>Mensalidade Março/2026</Text>
-            <Text style={[styles.infoText, { color: theme.subText }]}>Vencimento: 20/03/2026</Text>
-            <Text style={[styles.valueText, { color: theme.text }]}>Valor: R$ 850,00</Text>
-            <TouchableOpacity style={[styles.primaryButton, styles.buttonRed]} onPress={() => navigation.navigate('Faturas')}>
-              <Text style={styles.primaryButtonText}>Ir para faturas</Text>
-            </TouchableOpacity>
-          </View>
-        </Animatable.View>
+          </Animatable.View>
+        )}
 
-        <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
-          <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 40 }]}>
-            <View style={styles.cardHeaderBetweenCenter}>
-              <View style={styles.rowCenter}>
-                <Ionicons name="library-outline" size={20} color={colors.primary} />
-                <Text style={styles.cardTitle}>Biblioteca</Text>
+        {activeLoan && (
+          <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
+            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 40 }]}>
+              <View style={styles.cardHeaderBetweenCenter}>
+                <View style={styles.rowCenter}>
+                  <Ionicons name="library-outline" size={20} color={colors.primary} />
+                  <Text style={styles.cardTitle}>Biblioteca</Text>
+                </View>
+                <View style={styles.badgeRed}>
+                  <Text style={styles.badgeText}>{activeLoan.delayText}</Text>
+                </View>
               </View>
-              <View style={styles.badgeRed}>
-                <Text style={styles.badgeText}>Atrasado 4 dias</Text>
-              </View>
+              <Text style={[styles.subjectText, { color: theme.text }]}>{activeLoan.title}</Text>
+              <Text style={[styles.infoText, styles.infoTextSpaced, { color: theme.subText }]}>
+                <Ionicons name="alert-circle-outline" /> Prazo: {activeLoan.dueDate}
+              </Text>
+              <TouchableOpacity
+                style={[styles.primaryButton, styles.buttonRed]}
+                onPress={() => Alert.alert('Devolução', 'Dirija-se ao balcão da biblioteca para devolver o exemplar.')}
+              >
+                <Text style={styles.primaryButtonText}>Realizar devolução</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={[styles.subjectText, { color: theme.text }]}>Algoritmos e Estruturas de Dados</Text>
-            <Text style={[styles.infoText, styles.infoTextSpaced, { color: theme.subText }]}>
-              <Ionicons name="alert-circle-outline" /> Prazo: 19/03/2026
-            </Text>
-            <TouchableOpacity
-              style={[styles.primaryButton, styles.buttonRed]}
-              onPress={() => Alert.alert('Devolução', 'Dirija-se ao balcão da biblioteca para devolver o exemplar.')}
-            >
-              <Text style={styles.primaryButtonText}>Realizar devolução</Text>
-            </TouchableOpacity>
-          </View>
-        </Animatable.View>
+          </Animatable.View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
