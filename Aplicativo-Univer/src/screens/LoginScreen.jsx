@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUniver } from '../contexts/UniverContext';
-import { colors } from '../styles/styles';
+import { colors, theme as uiTheme } from '../styles/styles';
 
 export default function LoginScreen() {
   const { login } = useUniver();
@@ -64,17 +64,29 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.inner}>
-        <Animatable.View animation="fadeInDown" duration={900} style={styles.logoContainer}>
-          <Image source={require('../../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
-          <Text style={styles.title}>UniPortal</Text>
-          <Text style={styles.subtitle}>Login</Text>
+        <Animatable.View animation="fadeInDown" duration={700} style={styles.brandPanel}>
+          <View style={styles.brandHeader}>
+            <View style={styles.logoMark}>
+              <Image source={require('../../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
+            </View>
+            <View>
+              <Text style={styles.title}>UniPortal</Text>
+              <Text style={styles.subtitle}>Ambiente acadêmico</Text>
+            </View>
+          </View>
+
+          <Text style={styles.eyebrow}>Sua jornada acadêmica em um só lugar</Text>
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" duration={600} delay={100} style={styles.formContainer}>
+          <Text style={styles.formTitle}>Bem-vindo de volta</Text>
+          <Text style={styles.formSub}>Entre com seus dados institucionais para continuar.</Text>
+
           <Text style={styles.label}>Usuário (10 dígitos)</Text>
           <TextInput
             style={styles.input}
-            placeholder="Matrícula - 10 dígitos"
+            placeholder="Digite sua matrícula"
+            placeholderTextColor="#91a4c7"
             value={usuario}
             onChangeText={setUsuario}
             keyboardType="numeric"
@@ -85,7 +97,8 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             secureTextEntry
-            placeholder="CPF - 11 dígitos"
+            placeholder="Digite seu CPF"
+            placeholderTextColor="#91a4c7"
             value={senha}
             onChangeText={setSenha}
             keyboardType="numeric"
@@ -95,7 +108,7 @@ export default function LoginScreen() {
           />
 
           <TouchableOpacity style={styles.buttonLogin} onPress={handleLogin} disabled={submitting}>
-            <Text style={styles.buttonLoginText}>{submitting ? 'ENTRANDO...' : 'ENTRAR'}</Text>
+            <Text style={styles.buttonLoginText}>{submitting ? 'Entrando...' : 'Entrar no portal'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => Alert.alert('Suporte', 'Procure a secretaria.')}>
@@ -108,16 +121,88 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.primaryDark },
-  inner: { flex: 1, justifyContent: 'center', padding: 20 },
-  logoContainer: { alignItems: 'center', marginBottom: 40 },
-  logoImage: { width: 150, height: 150, marginBottom: 10 },
-  title: { fontSize: 40, color: colors.white, fontWeight: 'bold' },
-  subtitle: { fontSize: 22, color: colors.white, fontWeight: '600', marginTop: 5 },
-  formContainer: { backgroundColor: colors.white, padding: 25, borderRadius: 12 },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#444', marginBottom: 5 },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 12, marginBottom: 20, fontSize: 16 },
-  buttonLogin: { backgroundColor: colors.primary, padding: 15, borderRadius: 6, alignItems: 'center', marginBottom: 15 },
-  buttonLoginText: { color: colors.white, fontWeight: 'bold', fontSize: 16 },
-  forgotPassword: { color: colors.primary, textAlign: 'center', fontWeight: '600', textDecorationLine: 'underline' },
+  container: { flex: 1, backgroundColor: '#11141a' },
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 18,
+    width: '100%',
+    maxWidth: 430,
+    alignSelf: 'center',
+  },
+  brandPanel: {
+    backgroundColor: colors.primaryDark,
+    borderRadius: uiTheme.radius.md,
+    padding: 16,
+    marginBottom: 14,
+    overflow: 'hidden',
+  },
+  brandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  logoMark: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  logoImage: { width: 30, height: 30 },
+  title: { fontSize: 20, color: colors.white, fontWeight: '900' },
+  subtitle: { fontSize: 12, color: '#ffdce1', fontWeight: '700', marginTop: 1 },
+  eyebrow: {
+    color: '#ffe066',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
+  heroTitle: {
+    color: colors.white,
+    fontSize: 23,
+    lineHeight: 28,
+    fontWeight: '900',
+  },
+  heroText: {
+    color: '#ffd9df',
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 8,
+  },
+  formContainer: {
+    backgroundColor: '#151a22',
+    width: '100%',
+    padding: 22,
+    borderRadius: uiTheme.radius.lg,
+    borderWidth: 1,
+    borderColor: '#2c3441',
+  },
+  formTitle: { color: colors.white, fontSize: 28, fontWeight: '900' },
+  formSub: { color: '#b6c4df', fontSize: 13, lineHeight: 19, marginTop: 6, marginBottom: 22 },
+  label: { fontSize: 12, fontWeight: '900', color: colors.white, marginBottom: 8 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#343b48',
+    borderRadius: uiTheme.radius.md,
+    padding: 14,
+    marginBottom: 17,
+    fontSize: 15,
+    color: colors.white,
+    backgroundColor: '#1a1f28',
+  },
+  buttonLogin: {
+    backgroundColor: '#d62d46',
+    padding: 15,
+    borderRadius: uiTheme.radius.md,
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 15,
+  },
+  buttonLoginText: { color: colors.white, fontWeight: '900', fontSize: 14 },
+  forgotPassword: { color: '#c8d5ef', textAlign: 'center', fontWeight: '800' },
 });

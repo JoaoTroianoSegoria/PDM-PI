@@ -5,7 +5,7 @@ import * as Animatable from 'react-native-animatable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/AppHeader';
 import StatusView from '../components/StatusView';
-import { animation, colors, getThemeColors, sharedStyles } from '../styles/styles';
+import { animation, colors, getThemeColors, sharedStyles, theme as uiTheme } from '../styles/styles';
 import { useTheme } from '../contexts/ThemeContext';
 import { useUniver } from '../contexts/UniverContext';
 
@@ -15,12 +15,8 @@ const PESO_P1 = 0.4;
 const PESO_P2 = 0.6;
 
 const notaLancada = (nota) => typeof nota === 'number' && !Number.isNaN(nota);
-
-const formatNota = (nota, fallback = 'Não lançada') =>
-  notaLancada(nota) ? nota.toFixed(1) : fallback;
-
+const formatNota = (nota, fallback = 'Não lançada') => (notaLancada(nota) ? nota.toFixed(1) : fallback);
 const arredondarParaCima = (valor) => Math.max(0, Math.ceil(valor * 10) / 10);
-
 const calcularMedia = (p1, p2) => p1 * PESO_P1 + p2 * PESO_P2;
 
 const calcularMediaFinal = ({ p1, p2, substitutiva }) => {
@@ -43,6 +39,20 @@ const calcularMediaFinal = ({ p1, p2, substitutiva }) => {
 const calcularP2Necessaria = (p1) =>
   arredondarParaCima((MEDIA_APROVACAO - p1 * PESO_P1) / PESO_P2);
 
+const formatP2 = (materia) => {
+  if (notaLancada(materia.p2)) return formatNota(materia.p2);
+  if (!notaLancada(materia.p1)) return formatNota(materia.p2);
+
+  const necessaria = calcularP2Necessaria(materia.p1);
+  return necessaria > NOTA_MAXIMA ? 'Acima de 10' : `Precisa ${formatNota(necessaria)}`;
+};
+
+const getP2Detail = (materia) => {
+  if (notaLancada(materia.p2)) return 'nota lançada';
+  if (!notaLancada(materia.p1)) return 'aguardando P1';
+  return 'para média 5';
+};
+
 const calcularSubstitutivaNecessaria = ({ p1, p2 }) => {
   const substituirP1 = arredondarParaCima((MEDIA_APROVACAO - p2 * PESO_P2) / PESO_P1);
   const substituirP2 = arredondarParaCima((MEDIA_APROVACAO - p1 * PESO_P1) / PESO_P2);
@@ -57,60 +67,46 @@ const getGradeColor = (nota, theme) => {
   return nota >= MEDIA_APROVACAO ? colors.success : colors.danger;
 };
 
-const getDiagnostico = (materia) => {
-  if (!notaLancada(materia.p1)) {
-    return {
-      titulo: 'Calculadora',
-      valor: '--',
-      texto: 'Aguardando lançamento da P1.',
-      cor: colors.mutedText,
-    };
-  }
+const getGradeStatus = (materia, mediaFinal) => {
+  if (!notaLancada(mediaFinal.valor)) return { label: 'Cursando', tone: 'neutral' };
+  if (mediaFinal.valor >= MEDIA_APROVACAO) return { label: 'Aprovado', tone: 'success' };
+  return notaLancada(materia.substitutiva)
+    ? { label: 'Reprovado', tone: 'danger' }
+    : { label: 'Precisa de substitutiva', tone: 'warning' };
+};
 
+const getSubstitutivaInfo = (materia) => {
+  if (notaLancada(materia.substitutiva)) {
+    return { value: formatNota(materia.substitutiva), detail: 'nota lançada', tone: 'default' };
+  }
   if (!notaLancada(materia.p2)) {
-    const necessaria = calcularP2Necessaria(materia.p1);
-
-    return {
-      titulo: 'Para passar direto',
-      valor: necessaria > NOTA_MAXIMA ? 'Acima de 10' : `P2: ${formatNota(necessaria)}`,
-      texto:
-        necessaria > NOTA_MAXIMA
-          ? 'Mesmo com nota máxima na P2, será preciso substitutiva.'
-          : `Com P1 ${formatNota(materia.p1)}, essa é a nota mínima na P2.`,
-      cor: necessaria > NOTA_MAXIMA ? colors.danger : colors.primary,
-    };
+    return { value: 'Aguardando P2', detail: 'cálculo após a nota', tone: 'accent' };
   }
-
   const mediaFinal = calcularMediaFinal(materia);
-
   if (mediaFinal.valor >= MEDIA_APROVACAO) {
-    return {
-      titulo: 'Situação',
-      valor: `Média: ${formatNota(mediaFinal.valor)}`,
-      texto: `${mediaFinal.origem}. O aluno já alcançou a média mínima.`,
-      cor: colors.success,
-    };
+    return { value: 'Dispensada', detail: 'média suficiente', tone: 'success' };
   }
-
   const substitutiva = calcularSubstitutivaNecessaria(materia);
-
   return {
-    titulo: 'Para passar',
-    valor: substitutiva.nota > NOTA_MAXIMA ? 'Acima de 10' : `Sub: ${formatNota(substitutiva.nota)}`,
-    texto:
-      substitutiva.nota > NOTA_MAXIMA
-        ? 'Mesmo substituindo a melhor prova, não fecha a média mínima.'
-        : `Melhor usar a substitutiva no lugar da ${substitutiva.alvo}.`,
-    cor: substitutiva.nota > NOTA_MAXIMA ? colors.danger : colors.primary,
+    value: substitutiva.nota > NOTA_MAXIMA ? 'Acima de 10' : `Precisa ${formatNota(substitutiva.nota)}`,
+    detail: `substituir ${substitutiva.alvo}`,
+    tone: substitutiva.nota > NOTA_MAXIMA ? 'danger' : 'accent',
   };
+};
+
+const getDetailMessage = (materia, mediaFinal) => {
+  if (!notaLancada(materia.p1)) return 'Aguardando lançamento da P1.';
+  if (!notaLancada(materia.p2)) return 'Sem necessidade de substitutiva no momento.';
+  if (mediaFinal.valor >= MEDIA_APROVACAO) return `${mediaFinal.origem}. Média suficiente no momento.`;
+  if (notaLancada(materia.substitutiva)) return 'Substitutiva lançada e média final calculada.';
+  return 'Substitutiva recomendada para tentar alcançar a média mínima.';
 };
 
 export default function BoletimScreen() {
   const { isDarkMode, toggleTheme } = useTheme();
-  const { error, grades, loading, logout, refresh } = useUniver();
+  const { dashboard, disciplines, error, grades, loading, logout, refresh } = useUniver();
   const [expandedId, setExpandedId] = useState(null);
   const theme = getThemeColors(isDarkMode);
-  const panelBg = isDarkMode ? '#262626' : '#f7f7f7';
 
   const handleLogout = () => {
     Alert.alert('Sair', 'Deseja sair da conta?', [
@@ -135,98 +131,155 @@ export default function BoletimScreen() {
     );
   }
 
+  const statusSummary = grades.reduce(
+    (acc, materia) => {
+      const mediaFinal = calcularMediaFinal(materia);
+      const status = getGradeStatus(materia, mediaFinal);
+      acc[status.tone] = (acc[status.tone] ?? 0) + 1;
+      return acc;
+    },
+    { success: 0, warning: 0, danger: 0, neutral: 0 }
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <AppHeader isDarkMode={isDarkMode} onToggleTheme={toggleTheme} onLogout={handleLogout} />
+      <AppHeader
+        isDarkMode={isDarkMode}
+        onLogout={handleLogout}
+        onToggleTheme={toggleTheme}
+        subtitle={dashboard?.dateLabel ?? 'Semestre 2026.1'}
+        title="Boletim de Notas"
+      />
 
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <Animatable.View animation="fadeInUp" duration={animation.duration} delay={50}>
-          <Text style={[styles.title, { color: theme.text }]}>Boletim de Notas</Text>
-          <Text style={[styles.subtitle, { color: theme.subText }]}>Semestre 2026.1</Text>
-        </Animatable.View>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.summaryGrid}>
+          <SummaryMetric title="Disciplinas" value={String(grades.length)} detail="Médias individuais" theme={theme} />
+          <SummaryMetric title="Frequência mínima" value="75%" detail="Média mínima: 5.0" theme={theme} />
+          <View style={[styles.summaryWide, { backgroundColor: theme.card, borderColor: theme.border }, theme.shadow]}>
+            <Text style={[styles.metricTitle, { color: theme.subText }]}>Situação por disciplina</Text>
+            <View style={styles.badgeRow}>
+              <ToneBadge tone="success" label={`${statusSummary.success} Aprovadas`} />
+              <ToneBadge tone="warning" label={`${statusSummary.warning} Em atenção`} />
+              <ToneBadge tone="danger" label={`${statusSummary.danger} Reprovadas`} />
+            </View>
+            <Text style={[styles.metricDetail, { color: theme.subText }]}>
+              Notas e cálculo ficam nos detalhes.
+            </Text>
+          </View>
+        </View>
 
         {grades.map((materia, index) => {
           const expanded = expandedId === materia.id;
           const mediaFinal = calcularMediaFinal(materia);
-          const diagnostico = getDiagnostico(materia);
           const gradeColor = getGradeColor(mediaFinal.valor, theme);
+          const status = getGradeStatus(materia, mediaFinal);
+          const progressColor = materia.freq >= 75 ? colors.success : colors.warning;
+          const classDetails = disciplines.current.find((item) => item.cod === materia.cod) ?? {};
+          const substitutivaInfo = getSubstitutivaInfo(materia);
 
           return (
-            <Animatable.View
-              key={materia.id}
-              animation="fadeInUp"
-              duration={animation.duration}
-              delay={450 + index * 100}
-            >
+            <Animatable.View key={materia.id} animation="fadeInUp" duration={animation.duration} delay={100 + index * 70}>
               <TouchableOpacity
-                activeOpacity={0.88}
+                activeOpacity={0.9}
                 onPress={() => setExpandedId(expanded ? null : materia.id)}
-                style={[styles.cardDetail, { backgroundColor: theme.card, borderColor: theme.border }]}
+                style={[styles.gradeCard, { backgroundColor: theme.card, borderColor: theme.border }, theme.shadow]}
               >
-                <View style={styles.detailRow}>
+                <View style={styles.gradeHeader}>
                   <View style={styles.subjectInfo}>
                     <Text style={[styles.subjectTitle, { color: theme.text }]}>{materia.nome}</Text>
                     <Text style={[styles.subjectSub, { color: theme.subText }]}>{materia.cod}</Text>
                   </View>
 
-                  <View style={styles.gradeArea}>
-                    <Text style={[styles.gradeBig, { color: gradeColor }]}>
-                      {formatNota(mediaFinal.valor, 'Pendente')}
-                    </Text>
-                    <Ionicons
-                      name={expanded ? 'chevron-up' : 'chevron-down'}
-                      size={20}
-                      color={theme.subText}
-                    />
+                  <View style={styles.gradeSummary}>
+                    <ToneBadge tone={status.tone} label={status.label} />
+                    <View style={styles.gradeValueRow}>
+                      <Text style={[styles.gradeBig, { color: gradeColor }]}>
+                        {formatNota(mediaFinal.valor, 'Pendente')}
+                      </Text>
+                      <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.subText} />
+                    </View>
                   </View>
                 </View>
 
-                <Text style={[styles.freqLabel, { color: theme.subText }]}>Frequência: {materia.freq}%</Text>
+                <View style={styles.freqLine}>
+                  <Text style={[styles.freqLabel, { color: theme.subText }]}>Frequência</Text>
+                  <Text style={[styles.freqValue, { color: progressColor }]}>{materia.freq}%</Text>
+                </View>
 
                 <View style={styles.progressContainer}>
-                  <View style={styles.progressBarBg}>
-                    <View style={[styles.progressBarFill, { width: `${Math.min(materia.freq, 100)}%` }]} />
+                  <View style={[styles.progressBarBg, { backgroundColor: theme.progressTrack }]}>
+                    <View style={[styles.progressBarFill, { width: `${Math.min(materia.freq, 100)}%`, backgroundColor: progressColor }]} />
                     <View style={styles.marker75} />
                   </View>
-                  <Text style={styles.markerText}>75%</Text>
+                  <View style={styles.markerLabels}>
+                    <Text style={[styles.markerText, { color: theme.subText }]}>0%</Text>
+                    <Text style={styles.marker75Text}>75% mínimo</Text>
+                    <Text style={[styles.markerText, { color: theme.subText }]}>100%</Text>
+                  </View>
                 </View>
 
                 {expanded && (
-                  <View style={styles.expandedRow}>
-
-                    <View style={[styles.infoPanel, { backgroundColor: panelBg }]}>
-                      <View style={styles.panelTitleRow}>
-                        <Ionicons name="document-text-outline" size={16} color={colors.primary} />
-                        <Text style={[styles.panelTitle, { color: theme.text }]}>Notas</Text>
-                      </View>
-
-                      <View style={styles.noteRow}>
-                        <Text style={[styles.noteLabel, { color: theme.subText }]}>Prova 1:</Text>
-                        <Text style={[styles.noteValue, { color: theme.text }]}>{formatNota(materia.p1)}</Text>
-                      </View>
-
-                      <View style={styles.noteRow}>
-                        <Text style={[styles.noteLabel, { color: theme.subText }]}>Prova 2:</Text>
-                        <Text style={[styles.noteValue, { color: theme.text }]}>{formatNota(materia.p2)}</Text>
-                      </View>
-
-                      <View style={styles.noteRow}>
-                        <Text style={[styles.noteLabel, { color: theme.subText }]}>Substitutiva:</Text>
-                        <Text style={[styles.noteValue, { color: theme.text }]}>
-                          {formatNota(materia.substitutiva)}
-                        </Text>
-                      </View>
+                  <View style={styles.expandedArea}>
+                    <View style={styles.detailCardsGrid}>
+                      <GradeDetailCard
+                        detail="P1"
+                        icon="1"
+                        isDarkMode={isDarkMode}
+                        label="P1"
+                        theme={theme}
+                        value={formatNota(materia.p1)}
+                      />
+                      <GradeDetailCard
+                        detail={getP2Detail(materia)}
+                        icon="2"
+                        isDarkMode={isDarkMode}
+                        label="P2"
+                        theme={theme}
+                        tone={!notaLancada(materia.p2) && notaLancada(materia.p1) ? 'accent' : 'default'}
+                        value={formatP2(materia)}
+                      />
+                      <GradeDetailCard
+                        detail={substitutivaInfo.detail}
+                        icon="sync"
+                        isDarkMode={isDarkMode}
+                        label="Substitutiva"
+                        theme={theme}
+                        tone={substitutivaInfo.tone}
+                        value={substitutivaInfo.value}
+                      />
+                      <GradeDetailCard
+                        detail={mediaFinal.origem}
+                        icon="school"
+                        isDarkMode={isDarkMode}
+                        label="Média final"
+                        theme={theme}
+                        tone={notaLancada(mediaFinal.valor) ? (mediaFinal.valor >= MEDIA_APROVACAO ? 'success' : 'danger') : 'final'}
+                        value={formatNota(mediaFinal.valor)}
+                      />
                     </View>
-                    <View style={[styles.infoPanel, { backgroundColor: panelBg }]}>
-                      <View style={styles.panelTitleRow}>
-                        <Ionicons name="calculator-outline" size={16} color={diagnostico.cor} />
-                        <Text style={[styles.panelTitle, { color: theme.text }]}>{diagnostico.titulo}</Text>
-                      </View>
 
-                      <Text style={[styles.calcValue, { color: diagnostico.cor }]}>{diagnostico.valor}</Text>
-                      <Text style={[styles.calcText, { color: theme.subText }]}>{diagnostico.texto}</Text>
+                    <View style={[styles.detailMessage, { backgroundColor: theme.cardAlt }]}>
+                      <Text style={[styles.detailMessageText, { color: theme.subText }]}>
+                        {getDetailMessage(materia, mediaFinal)}
+                      </Text>
                     </View>
 
+                    {(classDetails.sala || classDetails.turma) && (
+                      <View style={styles.classMetaRow}>
+                        {classDetails.sala && (
+                          <Text style={[styles.classMetaText, { color: theme.subText }]}>
+                            <Text style={[styles.classMetaStrong, { color: theme.text }]}>Sala: </Text>
+                            {classDetails.sala}
+                          </Text>
+                        )}
+                        {classDetails.turma && (
+                          <Text style={[styles.classMetaText, { color: theme.subText }]}>
+                            <Text style={[styles.classMetaStrong, { color: theme.text }]}>Turma: </Text>
+                            {classDetails.turma}
+                          </Text>
+                        )}
+                      </View>
+                    )}
                   </View>
                 )}
 
@@ -244,94 +297,213 @@ export default function BoletimScreen() {
   );
 }
 
+function SummaryMetric({ detail, theme, title, value }) {
+  return (
+    <View style={[styles.summaryCard, { backgroundColor: theme.card, borderColor: theme.border }, theme.shadow]}>
+      <Text style={[styles.metricTitle, { color: theme.subText }]}>{title}</Text>
+      <Text style={styles.metricValue}>{value}</Text>
+      <Text style={[styles.metricDetail, { color: theme.subText }]}>{detail}</Text>
+    </View>
+  );
+}
+
+function ToneBadge({ label, tone }) {
+  const tones = {
+    success: { bg: '#dff7ec', fg: colors.success },
+    warning: { bg: '#fff1d6', fg: colors.warning },
+    danger: { bg: '#f7dce2', fg: colors.primaryDark },
+    neutral: { bg: '#eef0f3', fg: colors.mutedText },
+  };
+  const current = tones[tone] ?? tones.neutral;
+
+  return (
+    <View style={[styles.toneBadge, { backgroundColor: current.bg }]}>
+      <Text style={[styles.toneBadgeText, { color: current.fg }]}>{label}</Text>
+    </View>
+  );
+}
+
+function GradeDetailCard({ detail, icon, isDarkMode, label, theme, tone = 'default', value }) {
+  const isFinal = tone === 'final';
+  const toneColor = {
+    accent: colors.primarySoft,
+    danger: colors.danger,
+    default: theme.text,
+    final: isDarkMode ? '#ff5b6f' : colors.primaryDark,
+    success: colors.success,
+  }[tone] ?? theme.text;
+
+  return (
+    <View
+      style={[
+        styles.detailCard,
+        {
+          backgroundColor: isFinal ? (isDarkMode ? '#2a1820' : '#fff4f6') : theme.cardAlt,
+          borderColor: isFinal ? (isDarkMode ? '#6f3040' : '#f0c7cf') : theme.border,
+        },
+      ]}
+    >
+      <View style={styles.detailCardHeader}>
+        <View style={[styles.detailIcon, { backgroundColor: isDarkMode ? '#3b2030' : '#f7dce2' }]}>
+          {Number.isNaN(Number(icon)) ? (
+            <Ionicons name={icon} size={13} color={colors.primarySoft} />
+          ) : (
+            <Text style={styles.detailIconText}>{icon}</Text>
+          )}
+        </View>
+        <Text style={[styles.detailCardLabel, { color: theme.subText }]} numberOfLines={1}>{label}</Text>
+      </View>
+      <Text style={[styles.detailCardValue, { color: toneColor }]} numberOfLines={2}>{value}</Text>
+      <Text style={[styles.detailCardDetail, { color: theme.subText }]} numberOfLines={2}>{detail}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   ...sharedStyles,
-  contentContainer: { paddingBottom: 24 },
-  cardDetail: {
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    marginBottom: 15,
-  },
-  detailRow: {
+  summaryGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 12,
   },
-  subjectInfo: { flex: 1, paddingRight: 12 },
-  subjectTitle: { fontSize: 16, fontWeight: 'bold' },
-  subjectSub: { fontSize: 12, marginTop: 2 },
-  gradeArea: { alignItems: 'flex-end', flexDirection: 'row' },
-  gradeBig: { fontSize: 20, fontWeight: 'bold', marginRight: 4 },
-  freqLabel: { fontSize: 12, marginTop: 10 },
-  progressContainer: { marginTop: 5, marginBottom: 5 },
+  summaryCard: {
+    flex: 1,
+    minWidth: 145,
+    borderWidth: 1,
+    borderRadius: uiTheme.radius.md,
+    padding: 12,
+  },
+  summaryWide: {
+    flex: 1.25,
+    minWidth: 170,
+    borderWidth: 1,
+    borderRadius: uiTheme.radius.md,
+    padding: 12,
+  },
+  metricTitle: {
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 0,
+  },
+  metricValue: { color: colors.primaryDark, fontSize: 26, fontWeight: '900', marginTop: 8, marginBottom: 4 },
+  metricDetail: { fontSize: 11, lineHeight: 15, marginTop: 6 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  gradeCard: {
+    padding: 18,
+    borderRadius: uiTheme.radius.md,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  gradeHeader: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  subjectInfo: { flex: 1, minWidth: 0, paddingRight: 6 },
+  subjectTitle: { fontSize: 17, fontWeight: '900' },
+  subjectSub: { fontSize: 12, marginTop: 4 },
+  gradeSummary: {
+    alignItems: 'flex-end',
+    gap: 8,
+    minWidth: 132,
+    maxWidth: 210,
+  },
+  gradeValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  gradeBig: { fontSize: 28, fontWeight: '900' },
+  toneBadge: {
+    borderRadius: uiTheme.radius.pill,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    alignSelf: 'flex-end',
+  },
+  toneBadgeText: { fontSize: 10, fontWeight: '900' },
+  freqLine: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 14 },
+  freqLabel: { fontSize: 13 },
+  freqValue: { fontSize: 13, fontWeight: '900' },
+  progressContainer: { marginTop: 8 },
   progressBarBg: {
-    height: 10,
-    backgroundColor: '#e1e1e1',
-    borderRadius: 5,
+    height: 7,
+    borderRadius: 6,
     overflow: 'hidden',
     position: 'relative',
   },
-  progressBarFill: { height: 10, backgroundColor: colors.primary },
+  progressBarFill: { height: 7, borderRadius: 6 },
   marker75: {
     position: 'absolute',
     left: '75%',
-    top: 0,
-    bottom: 0,
-    width: 4,
-    backgroundColor: '#6de020',
+    top: -2,
+    bottom: -2,
+    width: 3,
+    backgroundColor: colors.warning,
   },
-  markerText: {
-    fontSize: 9,
-    color: colors.mutedText,
-    textAlign: 'right',
-    marginRight: '20%',
-  },
-  expandedRow: {
+  markerLabels: {
     flexDirection: 'row',
-    marginTop: 12,
+    justifyContent: 'space-between',
+    marginTop: 6,
   },
-  infoPanel: {
+  markerText: { fontSize: 10 },
+  marker75Text: { fontSize: 10, color: colors.warning, fontWeight: '900' },
+  expandedArea: { marginTop: 14 },
+  detailCardsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  detailCard: {
     flex: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginRight: 8,
+    minWidth: 118,
+    borderRadius: uiTheme.radius.sm,
+    borderWidth: 1,
+    padding: 9,
   },
-  panelTitleRow: {
+  detailCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
     marginBottom: 8,
   },
-  panelTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginLeft: 6,
+  detailIcon: {
+    width: 21,
+    height: 21,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  calcValue: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    marginBottom: 4,
+  detailIconText: { color: colors.primarySoft, fontSize: 12, fontWeight: '900' },
+  detailCardLabel: {
+    flex: 1,
+    fontSize: 9,
+    fontWeight: '900',
+    textTransform: 'uppercase',
   },
-  calcText: {
-    fontSize: 11,
-    lineHeight: 15,
+  detailCardValue: { fontSize: 16, fontWeight: '900', lineHeight: 20 },
+  detailCardDetail: { fontSize: 10, fontWeight: '800', lineHeight: 13, marginTop: 1 },
+  detailMessage: {
+    borderRadius: uiTheme.radius.sm,
+    padding: 10,
+    marginTop: 10,
   },
-  noteRow: {
-    marginBottom: 6,
+  detailMessageText: { fontSize: 11, fontWeight: '800', lineHeight: 15 },
+  classMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+    marginTop: 10,
   },
-  noteLabel: {
-    fontSize: 11,
-  },
-  noteValue: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
+  classMetaText: { fontSize: 11, fontWeight: '800' },
+  classMetaStrong: { fontWeight: '900' },
   warningText: {
     color: colors.danger,
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginTop: 10,
-    fontStyle: 'italic',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 12,
   },
 });

@@ -1,6 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, useWindowDimensions, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,39 +10,24 @@ import DisciplinasScreen from './src/screens/DisciplinasScreen';
 import FaturasScreen from './src/screens/FaturasScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
-import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import UniPortalTabBar from './src/components/UniPortalTabBar';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 import { UniverProvider, useUniver } from './src/contexts/UniverContext';
-import { colors, getThemeColors, sharedStyles } from './src/styles/styles';
+import { colors, sharedStyles } from './src/styles/styles';
 
 const Tab = createBottomTabNavigator();
 
-const tabIcons = {
-  Início: ['home', 'home-outline'],
-  Disciplinas: ['book', 'book-outline'],
-  Boletim: ['document-text', 'document-text-outline'],
-  Carteirinha: ['id-card', 'id-card-outline'],
-  Faturas: ['card', 'card-outline'],
-};
-
 function MainTabs() {
-  const { isDarkMode } = useTheme();
-  const theme = getThemeColors(isDarkMode);
+  const { width } = useWindowDimensions();
+  const isSidebar = width >= 900;
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      tabBar={(props) => <UniPortalTabBar {...props} isSidebar={isSidebar} />}
+      screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          backgroundColor: theme.card,
-          borderTopColor: isDarkMode ? colors.darkBorder : colors.tabLight,
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          const [activeIcon, inactiveIcon] = tabIcons[route.name] ?? ['ellipse', 'ellipse-outline'];
-          return <Ionicons name={focused ? activeIcon : inactiveIcon} size={size} color={color} />;
-        },
-      })}
+        tabBarPosition: isSidebar ? 'left' : 'bottom',
+      }}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
       <Tab.Screen name="Disciplinas" component={DisciplinasScreen} />
